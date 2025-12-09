@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguaFlow AI | Master English via Telegram</title>
+    <meta name="description" content="Your Personal AI English Coach on Telegram. Automated, smart, and effortless learning.">
+
+    <!-- Fonts: Inter & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Animation Library (AOS) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Configuration for Custom Colors/Fonts -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        },
+                        dark: {
+                            900: '#0B0C10',
+                            800: '#111318',
+                            700: '#1A1D24',
+                        }
+                    },
+                    backgroundImage: {
+                        'hero-glow': 'conic-gradient(from 90deg at 50% 50%, #000000 0%, #1a1d24 50%, #000000 100%)',
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'type': 'type 2s steps(40, end)',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Utilities */
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .glass-card {
+            background: linear-gradient(180deg, rgba(26,29,36,0.6) 0%, rgba(17,19,24,0.8) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px -10px rgba(14, 165, 233, 0.15);
+        }
+
+        /* Text Gradients */
+        .text-gradient {
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0C10; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+
+        /* Background Glows */
+        .bg-glow-blob {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300 border-b border-white/5 bg-dark-900/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-indigo-600 flex items-center justify-center">
+                        <i data-lucide="bot" class="text-white w-5 h-5"></i>
+                    </div>
+                    <span class="font-display font-bold text-xl tracking-tight">Lingua<span class="text-brand-400">Flow</span></span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-300">
+                    <a href="#how-it-works" class="hover:text-white transition-colors">How It Works</a>
+                    <a href="#features" class="hover:text-white transition-colors">Features</a>
+                    <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
+                    <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hidden md:block text-sm font-medium text-gray-300 hover:text-white">Login</a>
+                    <a href="#pricing" class="px-5 py-2.5 rounded-full bg-white text-dark-900 font-semibold text-sm hover:bg-gray-100 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- Glow Effects -->
+        <div class="bg-glow-blob top-0 left-1/4 -translate-x-1/2"></div>
+        <div class="bg-glow-blob bottom-0 right-0 translate-y-1/3 bg-indigo-500/10"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+                
+                <!-- Hero Content -->
+                <div data-aos="fade-up" data-aos-duration="1000">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border-brand-500/30 mb-6">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span class="text-xs font-medium text-brand-400 uppercase tracking-wide">AI-Powered Automation V2.0</span>
+                    </div>
+                    
+                    <h1 class="text-5xl lg:text-7xl font-display font-bold leading-tight mb-6">
+                        Your Personal AI <br>
+                        <span class="text-gradient">English Coach.</span>
+                    </h1>
+                    
+                    <p class="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
+                        Stop memorizing lists. Start automating your fluency. Send words to Telegram, and our AI builds your personalized curriculum, quizzes, and pronunciation reviews instantly.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#pricing" class="px-8 py-4 rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_0_40px_-10px_rgba(14,165,233,0.5)]">
+                            <i data-lucide="zap" class="w-5 h-5"></i>
+                            Start Learning Free
+                        </a>
+                        <button class="px-8 py-4 rounded-full glass hover:bg-white/5 text-white font-semibold transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i>
+                            Watch Demo
+                        </button>
+                    </div>
+
+                    <div class="mt-8 flex items-center gap-4 text-sm text-gray-500">
+                        <div class="flex -space-x-2">
+                            <img class="w-8 h-8 rounded-full border-2 border-dark-900" src="https://i.pravatar.cc/100?img=1" alt="User">
+                            <img class="w-8 h-8 rounded-full border-2 border-dark-900" src="https://i.pravatar.cc/100?img=2" alt="User">
+                            <img class="w-8 h-8 rounded-full border-2 border-dark-900" src="https://i.pravatar.cc/100?img=3" alt="User">
+                        </div>
+                        <p>Trusted by 1,000+ learners worldwide</p>
+                    </div>
+                </div>
+
+                <!-- Hero Visual (Phone Mockup) -->
+                <div class="relative lg:h-[600px] flex items-center justify-center" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                    <!-- Abstract Decorative Circle -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-brand-500/20 to-indigo-500/20 rounded-full blur-3xl transform scale-75 animate-pulse-slow"></div>
+
+                    <!-- Phone Mockup -->
+                    <div class="relative w-[320px] h-[640px] bg-dark-900 rounded-[3rem] border-8 border-dark-800 shadow-2xl animate-float overflow-hidden z-20">
+                        <!-- Screen Header -->
+                        <div class="bg-dark-800 p-4 flex items-center gap-3 border-b border-white/5">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center">
+                                <i data-lucide="bot" class="text-white w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm">LinguaFlow Bot</h3>
+                                <p class="text-xs text-brand-400">bot</p>
+                            </div>
+                        </div>
+
+                        <!-- Chat Area -->
+                        <div class="p-4 space-y-4 h-full flex flex-col font-sans text-sm">
+                            
+                            <!-- User Message -->
+                            <div class="self-end bg-brand-600 text-white px-4 py-2 rounded-2xl rounded-tr-sm max-w-[80%] shadow-lg">
+                                What does "Serendipity" mean?
+                            </div>
+
+                            <!-- Bot Response 1 -->
+                            <div class="self-start bg-dark-700 text-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%] border border-white/5 shadow-lg">
+                                <p class="font-semibold text-brand-400 mb-1">Serendipity (n.)</p>
+                                <p class="text-xs mb-2">/ˌser.ənˈdɪp.ə.ti/</p>
+                                <p class="mb-2">The occurrence of events by chance in a happy or beneficial way.</p>
+                                <div class="bg-black/20 p-2 rounded text-xs italic text-gray-400">
+                                    "It was pure serendipity that we met at the coffee shop right before the rain started."
+                                </div>
+                            </div>
+
+                            <!-- Bot Response 2 (Auto Trigger) -->
+                            <div class="self-start bg-dark-700 text-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%] border border-white/5 shadow-lg">
+                                <p class="flex items-center gap-2 font-semibold text-green-400 mb-1">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i> Saved to Deck
+                                </p>
+                                <p class="text-xs">I'll quiz you on this word tomorrow morning.</p>
+                            </div>
+
+                             <!-- User Message 2 -->
+                             <div class="self-end bg-brand-600 text-white px-4 py-2 rounded-2xl rounded-tr-sm max-w-[80%] shadow-lg mt-4 animate-pulse">
+                                <i data-lucide="mic" class="w-4 h-4 inline mr-1"></i> Audio sent...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl lg:text-4xl font-display font-bold mb-4">Effortless Workflow</h2>
+                <p class="text-gray-400 max-w-xl mx-auto">No complex apps to navigate. Just chat with the bot, and our automation engine handles the heavy lifting.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 relative">
+                <!-- Connector Line (Desktop) -->
+                <div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-brand-500/0 via-brand-500/30 to-brand-500/0 border-t border-dashed border-gray-600 z-0"></div>
+
+                <!-- Step 1 -->
+                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-24 h-24 mx-auto bg-dark-800 rounded-2xl border border-white/10 flex items-center justify-center mb-6 shadow-[0_0_30px_-10px_rgba(56,189,248,0.3)] group-hover:border-brand-500/50 transition-colors">
+                        <i data-lucide="send" class="w-10 h-10 text-brand-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">1. Send a Word</h3>
+                    <p class="text-sm text-gray-400 px-4">Encounter a new word? Just type it or send a voice note to the Telegram bot.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-24 h-24 mx-auto bg-dark-800 rounded-2xl border border-white/10 flex items-center justify-center mb-6 shadow-[0_0_30px_-10px_rgba(168,85,247,0.3)] group-hover:border-purple-500/50 transition-colors">
+                        <i data-lucide="cpu" class="w-10 h-10 text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">2. AI Analysis</h3>
+                    <p class="text-sm text-gray-400 px-4">Our engine defines it, finds examples, generates audio, and categorizes it.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-24 h-24 mx-auto bg-dark-800 rounded-2xl border border-white/10 flex items-center justify-center mb-6 shadow-[0_0_30px_-10px_rgba(34,197,94,0.3)] group-hover:border-green-500/50 transition-colors">
+                        <i data-lucide="refresh-cw" class="w-10 h-10 text-green-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">3. Auto-Review</h3>
+                    <p class="text-sm text-gray-400 px-4">Receive smart quizzes and reviews exactly when you're about to forget.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Bento Grid -->
+    <section id="features" class="py-24 bg-dark-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12">
+                <h2 class="text-3xl lg:text-4xl font-display font-bold mb-4">Everything you need to <br> <span class="text-gradient">speak confidently.</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 grid-rows-2 gap-6 h-auto">
+                
+                <!-- Feature 1: Large -->
+                <div class="glass-card md:col-span-2 row-span-2 rounded-3xl p-8 relative overflow-hidden group" data-aos="fade-up">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:bg-brand-500/20"></div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-6 text-blue-400">
+                            <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Smart Spaced Repetition</h3>
+                        <p class="text-gray-400 mb-6 max-w-md">We use the Ebbinghaus Forgetting Curve algorithm. The AI schedules reviews for each word specifically based on your performance, ensuring long-term retention without burnout.</p>
+                        
+                        <!-- Mock Graph -->
+                        <div class="w-full h-40 bg-dark-900/50 rounded-xl border border-white/5 flex items-end p-4 gap-2">
+                            <div class="w-1/6 bg-brand-900/50 h-[30%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-brand-800/50 h-[45%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-brand-700/50 h-[60%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-brand-600/50 h-[50%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-brand-500/50 h-[80%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-brand-400 h-[95%] rounded-t-sm shadow-[0_0_15px_rgba(56,189,248,0.5)]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 2: Small -->
+                <div class="glass-card rounded-3xl p-6" data-aos="fade-up" data-aos-delay="100">
+                    <i data-lucide="mic" class="w-8 h-8 text-purple-400 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Voice Analysis</h3>
+                    <p class="text-sm text-gray-400">Send voice notes. The AI checks pronunciation and gives instant feedback.</p>
+                </div>
+
+                <!-- Feature 3: Small -->
+                <div class="glass-card rounded-3xl p-6" data-aos="fade-up" data-aos-delay="200">
+                    <i data-lucide="database" class="w-8 h-8 text-green-400 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Infinite Vocabulary</h3>
+                    <p class="text-sm text-gray-400">Store thousands of words. Search, filter, and export your personal dictionary anytime.</p>
+                </div>
+
+                 <!-- Feature 4: Wide Bottom -->
+                 <div class="glass-card md:col-span-3 rounded-3xl p-8 flex flex-col md:flex-row items-center gap-8" data-aos="fade-up">
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold mb-3">Tailored for You</h3>
+                        <p class="text-gray-400">Whether you are an Arabic speaker in Algeria needing specific context translation, or a global business professional, the AI adapts examples to your region and career.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="px-4 py-2 rounded-lg bg-dark-900 border border-white/10 text-sm flex items-center gap-2">
+                            <span class="text-xs bg-brand-500/20 text-brand-300 px-1.5 py-0.5 rounded">EN</span>
+                            Entrepreneur
+                        </div>
+                        <i data-lucide="arrow-right" class="text-gray-600"></i>
+                        <div class="px-4 py-2 rounded-lg bg-dark-900 border border-white/10 text-sm flex items-center gap-2">
+                            <span class="text-xs bg-green-500/20 text-green-300 px-1.5 py-0.5 rounded">AR</span>
+                            رائد أعمال
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Us (Algerian/Arabic Focus) -->
+    <section class="py-24 relative overflow-hidden">
+        <div class="absolute left-0 top-0 w-1/3 h-full bg-gradient-to-r from-brand-900/20 to-transparent z-0"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-16">
+                <div class="md:w-1/2" data-aos="fade-right">
+                    <h2 class="text-3xl lg:text-5xl font-display font-bold mb-6 leading-tight">
+                        Built for the <br> 
+                        <span class="text-white">Modern Learner.</span>
+                    </h2>
+                    <ul class="space-y-6">
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">No Complicated Apps</h4>
+                                <p class="text-gray-400">You use Telegram every day. Why open another app? Learn where you chat.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Contextual Translation</h4>
+                                <p class="text-gray-400">Get meanings that make sense for your region and native language.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <div class="mt-1 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Consistent Growth</h4>
+                                <p class="text-gray-400">Automation ensures you never miss a day. It's like having a tutor in your pocket 24/7.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="md:w-1/2 relative" data-aos="fade-left">
+                     <!-- abstract decorative card stack -->
+                    <div class="relative w-full aspect-square">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-3xl opacity-20 blur-2xl"></div>
+                        <div class="absolute top-10 left-10 right-0 bottom-0 bg-dark-800 border border-white/10 rounded-2xl p-6 shadow-2xl z-10">
+                            <div class="flex justify-between items-center mb-8">
+                                <h4 class="text-gray-400 uppercase tracking-wider text-sm font-bold">Progress Report</h4>
+                                <span class="text-brand-400 font-bold">+24%</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="h-2 bg-dark-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-brand-500 w-[75%]"></div>
+                                </div>
+                                <div class="h-2 bg-dark-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-purple-500 w-[45%]"></div>
+                                </div>
+                                <div class="h-2 bg-dark-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-green-500 w-[90%]"></div>
+                                </div>
+                            </div>
+                            <div class="mt-8 grid grid-cols-2 gap-4">
+                                <div class="bg-dark-900 p-4 rounded-xl">
+                                    <div class="text-2xl font-bold text-white">1,204</div>
+                                    <div class="text-xs text-gray-500">Words Learned</div>
+                                </div>
+                                <div class="bg-dark-900 p-4 rounded-xl">
+                                    <div class="text-2xl font-bold text-white">85</div>
+                                    <div class="text-xs text-gray-500">Day Streak</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-0 left-0 right-10 bottom-10 bg-dark-700/50 backdrop-blur-sm border border-white/5 rounded-2xl -z-0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-24 bg-dark-800/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-center text-3xl font-display font-bold mb-12">Learners love LinguaFlow</h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- User 1 -->
+                <div class="glass-card p-6 rounded-2xl" data-aos="fade-up" data-aos-delay="0">
+                    <div class="flex gap-1 text-yellow-500 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                    </div>
+                    <p class="text-gray-300 mb-6 text-sm leading-relaxed">"I used to start courses and quit after a week. Because this is on Telegram, I actually do it. It's so frictionless."</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://i.pravatar.cc/100?img=12" class="w-10 h-10 rounded-full border border-white/10" alt="User">
+                        <div>
+                            <h5 class="font-bold text-sm">Amine B.</h5>
+                            <p class="text-xs text-gray-500">Software Engineer, Algiers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User 2 -->
+                <div class="glass-card p-6 rounded-2xl" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex gap-1 text-yellow-500 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                    </div>
+                    <p class="text-gray-300 mb-6 text-sm leading-relaxed">"The AI explanations are better than any teacher I've had. It understands context instantly."</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://i.pravatar.cc/100?img=5" class="w-10 h-10 rounded-full border border-white/10" alt="User">
+                        <div>
+                            <h5 class="font-bold text-sm">Sarah K.</h5>
+                            <p class="text-xs text-gray-500">Student, Oran</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User 3 -->
+                <div class="glass-card p-6 rounded-2xl" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex gap-1 text-yellow-500 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star-half" class="w-4 h-4 fill-current"></i>
+                    </div>
+                    <p class="text-gray-300 mb-6 text-sm leading-relaxed">"Simple, elegant, and effective. The daily reviews at 9 AM have become my morning ritual."</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://i.pravatar.cc/100?img=11" class="w-10 h-10 rounded-full border border-white/10" alt="User">
+                        <div>
+                            <h5 class="font-bold text-sm">Karim M.</h5>
+                            <p class="text-xs text-gray-500">Freelancer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-display font-bold mb-4">Invest in your future</h2>
+                <p class="text-gray-400">Simple pricing. No hidden fees. Cancel anytime.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Basic -->
+                <div class="glass-card p-8 rounded-3xl flex flex-col" data-aos="fade-up" data-aos-delay="0">
+                    <h3 class="text-lg font-medium text-gray-400 mb-2">Starter</h3>
+                    <div class="text-4xl font-bold mb-6">$0<span class="text-sm text-gray-500 font-normal">/mo</span></div>
+                    <ul class="space-y-4 mb-8 flex-1">
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> 5 Words per day</li>
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> Basic definitions</li>
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> Daily Quiz</li>
+                    </ul>
+                    <a href="#" class="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 text-center text-sm font-semibold transition-colors">Start Free</a>
+                </div>
+
+                <!-- Pro -->
+                <div class="glass-card p-8 rounded-3xl flex flex-col relative border-brand-500/50 shadow-brand-500/20 shadow-lg transform md:-translate-y-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-brand-500 to-purple-500 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Most Popular</div>
+                    <h3 class="text-lg font-medium text-brand-400 mb-2">Pro Learner</h3>
+                    <div class="text-4xl font-bold mb-6">$9<span class="text-sm text-gray-500 font-normal">/mo</span></div>
+                    <ul class="space-y-4 mb-8 flex-1">
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> Unlimited Words</li>
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> AI Voice Pronunciation</li>
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> Advanced Context Examples</li>
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> Image Generation (Memory Aids)</li>
+                    </ul>
+                    <a href="#" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-center text-sm font-semibold transition-colors shadow-lg shadow-brand-500/25">Get Pro</a>
+                </div>
+
+                <!-- Lifetime -->
+                <div class="glass-card p-8 rounded-3xl flex flex-col" data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="text-lg font-medium text-gray-400 mb-2">Lifetime</h3>
+                    <div class="text-4xl font-bold mb-6">$99<span class="text-sm text-gray-500 font-normal">/once</span></div>
+                    <ul class="space-y-4 mb-8 flex-1">
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> All Pro Features</li>
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> Priority Support</li>
+                        <li class="flex gap-3 text-sm text-gray-300"><i data-lucide="check" class="w-5 h-5 text-brand-500"></i> Early access to new features</li>
+                    </ul>
+                    <a href="#" class="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 text-center text-sm font-semibold transition-colors">Buy Once</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="py-24 bg-dark-800/20">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-display font-bold mb-12 text-center">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <details class="group glass-card rounded-xl p-4 [&_summary::-webkit-details-marker]:hidden">
+                    <summary class="flex items-center justify-between cursor-pointer">
+                        <h4 class="font-semibold text-gray-200">Do I need to install an app?</h4>
+                        <span class="ml-4 flex-shrink-0 text-gray-400 group-open:-rotate-180 transition-transform">
+                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                        </span>
+                    </summary>
+                    <p class="mt-4 text-gray-400 text-sm leading-relaxed">
+                        No! LinguaFlow works entirely inside Telegram. If you have Telegram installed, you are ready to go.
+                    </p>
+                </details>
+
+                <details class="group glass-card rounded-xl p-4 [&_summary::-webkit-details-marker]:hidden">
+                    <summary class="flex items-center justify-between cursor-pointer">
+                        <h4 class="font-semibold text-gray-200">How does the AI personalization work?</h4>
+                        <span class="ml-4 flex-shrink-0 text-gray-400 group-open:-rotate-180 transition-transform">
+                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                        </span>
+                    </summary>
+                    <p class="mt-4 text-gray-400 text-sm leading-relaxed">
+                        Our AI analyzes the words you struggle with and schedules them for review more frequently using Spaced Repetition. It also customizes example sentences based on your interests.
+                    </p>
+                </details>
+
+                <details class="group glass-card rounded-xl p-4 [&_summary::-webkit-details-marker]:hidden">
+                    <summary class="flex items-center justify-between cursor-pointer">
+                        <h4 class="font-semibold text-gray-200">Can I learn other languages?</h4>
+                        <span class="ml-4 flex-shrink-0 text-gray-400 group-open:-rotate-180 transition-transform">
+                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                        </span>
+                    </summary>
+                    <p class="mt-4 text-gray-400 text-sm leading-relaxed">
+                        Currently, we focus exclusively on English for Arabic speakers to ensure the highest quality of explanations and context.
+                    </p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Footer -->
+    <section class="py-20">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <div class="glass-card rounded-3xl p-12 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-600/20 to-purple-600/20 z-0"></div>
+                <div class="relative z-10">
+                    <h2 class="text-4xl font-display font-bold mb-6">Ready to boost your English?</h2>
+                    <p class="text-gray-300 mb-8 max-w-xl mx-auto">Join the future of language learning. Send your first word to the bot today.</p>
+                    <a href="#" class="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-dark-900 font-bold hover:bg-gray-100 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                        Start Learning Now
+                        <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-12 bg-black">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-dark-800 border border-white/10 flex items-center justify-center">
+                        <i data-lucide="bot" class="text-white w-4 h-4"></i>
+                    </div>
+                    <span class="font-display font-bold text-lg">LinguaFlow</span>
+                </div>
+                
+                <div class="text-gray-500 text-sm">
+                    &copy; 2023 LinguaFlow AI. Built for the future.
+                </div>
+
+                <div class="flex gap-6">
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize Animations
+        AOS.init({
+            once: true,
+            offset: 50,
+            duration: 800,
+            easing: 'ease-out-cubic',
+        });
+
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Optional: Simple interactive effect for hero cards
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Only apply if mouse is somewhat near to save performance
+                if (x > -50 && x < rect.width + 50 && y > -50 && y < rect.height + 50) {
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
