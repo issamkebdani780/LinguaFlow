@@ -18,8 +18,8 @@ const LinguaFlowApp = () => {
       <Hero  />
       <HowItWorks />
       <Features />
-      <FAQ />
       <Pricing />
+      <FAQ />
       <Footer />
     </div>
   );

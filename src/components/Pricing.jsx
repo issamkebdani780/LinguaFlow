@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Check, Zap, Sparkles, Crown } from 'lucide-react';
 
-const Pricing = ({ openModal }) => {
+const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
   const plans = [
@@ -181,7 +181,6 @@ const Pricing = ({ openModal }) => {
 
                 {/* CTA Button */}
                 <button
-                  onClick={() => openModal('signup')}
                   className={`w-full py-3 rounded-xl font-bold transition-all mb-8 ${plan.buttonStyle}`}
                 >
                   {plan.buttonText}

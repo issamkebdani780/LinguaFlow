@@ -1,6 +1,6 @@
 import { Zap, PlayCircle, Bot, Mic, CheckCircle } from 'lucide-react';
 
-const Hero = ({ openModal }) => (
+const Hero = () => (
   <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
     <div className="absolute top-0 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(56,189,248,0.15)_0%,rgba(0,0,0,0)_70%)] rounded-full pointer-events-none -z-10"></div>
         <div className="absolute bottom-0 right-0 translate-y-1/3 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(168,85,247,0.1)_0%,rgba(0,0,0,0)_70%)] rounded-full pointer-events-none -z-10"></div>
@@ -13,7 +13,7 @@ const Hero = ({ openModal }) => (
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                <span className="text-xs font-medium text-sky-400 uppercase tracking-wide">AI-Powered Automation V2.0</span>
+                <span className="text-xs font-medium text-sky-400 uppercase tracking-wide">AI-Powered Automation V1.0</span>
               </div>
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight mb-6">
                 Your Personal AI <br />
@@ -23,7 +23,7 @@ const Hero = ({ openModal }) => (
                 Stop memorizing lists. Start automating your fluency. Send words to Telegram, and our AI builds your personalized curriculum instantly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={() => openModal('signup')} className="px-8 py-4 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_0_40px_-10px_rgba(14,165,233,0.5)]">
+                <button className="px-8 py-4 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_0_40px_-10px_rgba(14,165,233,0.5)]">
                   <Zap className="w-5 h-5" />
                   Start Learning Free
                 </button>
@@ -31,14 +31,6 @@ const Hero = ({ openModal }) => (
                   <PlayCircle className="w-5 h-5" />
                   Watch Demo
                 </button>
-              </div>
-              <div className="mt-8 flex items-center gap-4 text-sm text-gray-500">
-                <div className="flex -space-x-2">
-                  <img className="w-8 h-8 rounded-full border-2 border-[#0B0C10]" src="https://i.pravatar.cc/100?img=1" alt="User" />
-                  <img className="w-8 h-8 rounded-full border-2 border-[#0B0C10]" src="https://i.pravatar.cc/100?img=2" alt="User" />
-                  <img className="w-8 h-8 rounded-full border-2 border-[#0B0C10]" src="https://i.pravatar.cc/100?img=3" alt="User" />
-                </div>
-                <p>Trusted by 1,000+ learners worldwide</p>
               </div>
             </div>
 
