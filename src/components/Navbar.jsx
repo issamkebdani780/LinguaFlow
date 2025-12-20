@@ -1,4 +1,5 @@
 import { Bot } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => (
   <nav className="fixed w-full z-50 border-b border-white/5 bg-[#0B0C10]/80 backdrop-blur-md">
@@ -19,12 +20,17 @@ const Navbar = () => (
                 </div>
     
                 <div className="flex items-center gap-4">
-                  <button className="hidden md:block text-sm font-medium text-gray-300 hover:text-white">
-                    Login
-                  </button>
-                  <button  className="px-5 py-2.5 rounded-full bg-white text-[#0B0C10] font-semibold text-sm hover:bg-gray-100 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                    Get Started
-                  </button>
+                  <Link to="/signin" className="text-sky-400 ml-1 hover:underline">
+                    <button className="cursor-pointer hidden md:block text-sm font-medium text-gray-300 hover:text-white">
+                      Login
+                    </button>
+                  </Link>
+                  <Link to="/signup" className="text-sky-400 ml-1 hover:underline">
+                    <button  className="cursor-pointer px-5 py-2.5 rounded-full bg-white text-[#0B0C10] font-semibold text-sm hover:bg-gray-100 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                      Get Started
+                    </button>
+                  </Link>
+                 
                 </div>
               </div>
             </div>

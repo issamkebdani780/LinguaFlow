@@ -7,7 +7,7 @@ import FAQ from './components/Faq';
 import Pricing from './components/Pricing';
 import Footer from './components/Footer';
 
-const LinguaFlowApp = () => {
+const App = () => {
   useEffect(() => {
     document.documentElement.classList.add('scroll-smooth');
   }, []);
@@ -25,4 +25,4 @@ const LinguaFlowApp = () => {
   );
 };
 
-export default LinguaFlowApp;
+export default App;
