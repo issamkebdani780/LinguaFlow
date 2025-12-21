@@ -1,7 +1,41 @@
 import { Mail, Lock, UserPlus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { use, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserAuth } from "../Authcontex";
 
 const SignUp = () => {
+  const [userName, setuserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userPassword, setUserPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  const { session, signUp } = UserAuth(); 
+  const navigate = useNavigate(); 
+
+
+  const handleSignUp = async (e) => { 
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      const { data, error: signUpError } = await signUp(userEmail, userName, userPassword);
+      
+      if (signUpError) {
+        setError(signUpError.message);
+        console.error(signUpError);
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      setError('An unexpected error occurred');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section className="min-h-screen flex items-center justify-center bg-[#0B0C10] relative overflow-hidden">
       {/* Gradients */}
@@ -21,14 +55,23 @@ const SignUp = () => {
         </h2>
         <p className="text-gray-400 text-center mb-8">Join LinguaFlow.</p>
 
-        <form className="space-y-6">
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSignUp} className="space-y-6">
           <div>
-            <label className="text-gray-300 text-sm">username</label>
+            <label className="text-gray-300 text-sm">Username</label>
             <div className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
               rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all">
               <UserPlus className="w-5 h-5 text-sky-400" />
               <input
+                value={userName}
+                onChange={(e) => setuserName(e.target.value)}
                 type="text"
+                required
                 className="bg-transparent text-gray-200 w-full outline-none placeholder-gray-400"
                 placeholder="username"
               />
@@ -41,7 +84,10 @@ const SignUp = () => {
               rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all">
               <Mail className="w-5 h-5 text-sky-400" />
               <input
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
                 type="email"
+                required
                 className="bg-transparent text-gray-200 w-full outline-none placeholder-gray-400"
                 placeholder="you@example.com"
               />
@@ -54,17 +100,25 @@ const SignUp = () => {
               rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all">
               <Lock className="w-5 h-5 text-sky-400" />
               <input
+                value={userPassword}
+                onChange={(e) => setUserPassword(e.target.value)}
                 type="password"
+                required
+                minLength={6}
                 className="bg-transparent text-gray-200 w-full outline-none placeholder-gray-400"
                 placeholder="••••••••"
               />
             </div>
           </div>
 
-          <button className="w-full py-4 rounded-full bg-indigo-600 hover:bg-indigo-500
-            text-white font-semibold transition-all flex justify-center gap-2 items-center">
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 rounded-full bg-indigo-600 hover:bg-indigo-500
+            text-white font-semibold transition-all flex justify-center gap-2 items-center
+            disabled:opacity-50 disabled:cursor-not-allowed">
             <UserPlus className="w-5 h-5" />
-            Sign Up
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
         </form>
 
