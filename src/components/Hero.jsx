@@ -1,6 +1,19 @@
 import { Zap, PlayCircle, Bot, Mic, CheckCircle } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
+import { UserAuth } from '../Authcontex';
+import { useNavigate } from 'react-router-dom';
+const Hero = () => {
+  const {session} = UserAuth();
+  const navigate = useNavigate();
 
-const Hero = () => (
+  const handleStart = () => {
+    if (session) {
+      navigate("/Dashboard");
+    } else {
+      navigate("/signup");
+    }
+  };
+  return (
   <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
     <div className="absolute top-0 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(56,189,248,0.15)_0%,rgba(0,0,0,0)_70%)] rounded-full pointer-events-none -z-10"></div>
         <div className="absolute bottom-0 right-0 translate-y-1/3 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(168,85,247,0.1)_0%,rgba(0,0,0,0)_70%)] rounded-full pointer-events-none -z-10"></div>
@@ -23,7 +36,7 @@ const Hero = () => (
                 Stop memorizing lists. Start automating your fluency. Send words to Telegram, and our AI builds your personalized curriculum instantly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-4 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_0_40px_-10px_rgba(14,165,233,0.5)]">
+                <button onClick={handleStart} className="px-8 py-4 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_0_40px_-10px_rgba(14,165,233,0.5)]">
                   <Zap className="w-5 h-5" />
                   Start Learning Free
                 </button>
@@ -69,6 +82,6 @@ const Hero = () => (
           </div>
         </div>
   </section>
-);
+)};
 
 export default Hero;

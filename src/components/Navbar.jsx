@@ -1,7 +1,10 @@
 import { Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { UserAuth } from '../Authcontex';
 
-const Navbar = () => (
+const Navbar = () => {
+  const {session} = UserAuth();
+  return (
   <nav className="fixed w-full z-50 border-b border-white/5 bg-[#0B0C10]/80 backdrop-blur-md">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center h-20">
@@ -19,7 +22,12 @@ const Navbar = () => (
                   <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
                 </div>
     
-                <div className="flex items-center gap-4">
+                {
+                  session ?
+                  <Link to="/dashboard" className="ml-4 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-md text-sm font-medium transition-colors">
+                    Dashboard
+                  </Link> : 
+                  <div className="flex items-center gap-4">
                   <Link to="/signin" className="text-sky-400 ml-1 hover:underline">
                     <button className="cursor-pointer hidden md:block text-sm font-medium text-gray-300 hover:text-white">
                       Login
@@ -30,11 +38,11 @@ const Navbar = () => (
                       Get Started
                     </button>
                   </Link>
-                 
                 </div>
+                }
               </div>
             </div>
   </nav>
-);
+)};
 
 export default Navbar;

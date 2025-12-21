@@ -4,52 +4,83 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../Authcontex";
 
 const SignUp = () => {
-  const [userName, setuserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
+  const [userName, setuserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPassword, setUserPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
-  const { session, signUp } = UserAuth(); 
-  const navigate = useNavigate(); 
+  const [error, setError] = useState("");
 
+  const { session, signUp } = UserAuth();
+  const navigate = useNavigate();
 
-  const handleSignUp = async (e) => { 
+  const isStrongPassword = (password) => {
+    const minLength = /.{8,}/;
+    const uppercase = /[A-Z]/;
+    const number = /[0-9]/;
+    const specialChar = /[@$!%*?&#^()-_=+]/;
+
+    return (
+      minLength.test(password) &&
+      uppercase.test(password) &&
+      number.test(password) &&
+      specialChar.test(password)
+    );
+  };
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSignUp = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    
+    setError("");
+
+    // password strength check
+    if (!isStrongPassword(userPassword)) {
+      setError(
+        "Password must be at least 8 characters long, contain uppercase letters, numbers, and special characters."
+      );
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { data, error: signUpError } = await signUp(userEmail, userName, userPassword);
-      
+      const { data, error: signUpError } = await signUp(
+        userEmail,
+        userName,
+        userPassword
+      );
+
       if (signUpError) {
         setError(signUpError.message);
-        console.error(signUpError);
       } else {
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     } catch (error) {
-      setError('An unexpected error occurred');
-      console.error(error);
+      setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-[#0B0C10] relative overflow-hidden">
       {/* Gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] 
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] 
         bg-[radial-gradient(circle,rgba(56,189,248,0.15)_0%,rgba(0,0,0,0)_70%)] 
-        rounded-full pointer-events-none"></div>
+        rounded-full pointer-events-none"
+      ></div>
 
-      <div className="absolute bottom-0 right-0 translate-y-1/3 w-[600px] h-[600px] 
-        bg-[radial-gradient(circle,rgba(168,85,247,0.1)_0%,rgba(0,0,0,0)_70%)] pointer-events-none"></div>
+      <div
+        className="absolute bottom-0 right-0 translate-y-1/3 w-[600px] h-[600px] 
+        bg-[radial-gradient(circle,rgba(168,85,247,0.1)_0%,rgba(0,0,0,0)_70%)] pointer-events-none"
+      ></div>
 
       {/* Card */}
-      <div className="relative z-10 bg-[#111318]/70 border border-white/10 backdrop-blur-xl
-        p-10 rounded-3xl shadow-2xl max-w-md w-full">
-
+      <div
+        className="relative z-10 bg-[#111318]/70 border border-white/10 backdrop-blur-xl
+        p-10 rounded-3xl shadow-2xl max-w-md w-full"
+      >
         <h2 className="text-4xl font-bold text-white mb-4 text-center">
           Create Account
         </h2>
@@ -64,8 +95,10 @@ const SignUp = () => {
         <form onSubmit={handleSignUp} className="space-y-6">
           <div>
             <label className="text-gray-300 text-sm">Username</label>
-            <div className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
-              rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all">
+            <div
+              className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
+              rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all"
+            >
               <UserPlus className="w-5 h-5 text-sky-400" />
               <input
                 value={userName}
@@ -80,8 +113,10 @@ const SignUp = () => {
 
           <div>
             <label className="text-gray-300 text-sm">Email</label>
-            <div className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
-              rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all">
+            <div
+              className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
+              rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all"
+            >
               <Mail className="w-5 h-5 text-sky-400" />
               <input
                 value={userEmail}
@@ -95,30 +130,42 @@ const SignUp = () => {
           </div>
 
           <div>
-            <label className="text-gray-300 text-sm">Password</label>
-            <div className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
-              rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all">
-              <Lock className="w-5 h-5 text-sky-400" />
-              <input
-                value={userPassword}
-                onChange={(e) => setUserPassword(e.target.value)}
-                type="password"
-                required
-                minLength={6}
-                className="bg-transparent text-gray-200 w-full outline-none placeholder-gray-400"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
+  <label className="text-gray-300 text-sm">Password</label>
+  <div className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
+    rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all relative">
+    
+    <Lock className="w-5 h-5 text-sky-400" />
 
-          <button 
+    <input
+      value={userPassword}
+      onChange={(e) => setUserPassword(e.target.value)}
+      type={showPassword ? "text" : "password"}
+      required
+      className="bg-transparent text-gray-200 w-full outline-none placeholder-gray-400"
+      placeholder="••••••••"
+    />
+
+    {/* Toggle Button */}
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute right-4 text-gray-400 hover:text-white"
+    >
+      {showPassword ? "🙈" : "👁️"}
+    </button>
+  </div>
+</div>
+
+
+          <button
             type="submit"
             disabled={loading}
             className="w-full py-4 rounded-full bg-indigo-600 hover:bg-indigo-500
             text-white font-semibold transition-all flex justify-center gap-2 items-center
-            disabled:opacity-50 disabled:cursor-not-allowed">
+            disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <UserPlus className="w-5 h-5" />
-            {loading ? 'Signing Up...' : 'Sign Up'}
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
