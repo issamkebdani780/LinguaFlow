@@ -3,9 +3,11 @@ import { supabase } from "../SupabaseClient";
 import { UserAuth } from "../Authcontex";
 import { PlusCircle, Book, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
+import Chatbot from "./Chatbot";
 
 const Dashboard = () => {
   const { session, signOut } = UserAuth();
+  
 
   const [english, setEnglish] = useState("");
   const [arabic, setArabic] = useState("");
@@ -127,6 +129,9 @@ const Dashboard = () => {
           </div>
 
         </div>
+
+        {/*chatbot*/}
+        <Chatbot userId={session.user.id} />
       </div>
     </div>
   );
