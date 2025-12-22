@@ -1,93 +1,133 @@
-import { LogOut, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "../SupabaseClient";
 import { UserAuth } from "../Authcontex";
-import { Bot } from 'lucide-react';
+import { PlusCircle, Book, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
+
 const Dashboard = () => {
   const { session, signOut } = UserAuth();
-  const navigate = useNavigate();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
+  const [english, setEnglish] = useState("");
+  const [arabic, setArabic] = useState("");
+  const [words, setWords] = useState([]);
+
+  useEffect(() => {
+    fetchWords();
+  }, []);
+
+  const fetchWords = async () => {
+    if (!session) return;
+    const { data, error } = await supabase
+      .from("words")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .order("created_at", { ascending: false });
+
+    if (!error) setWords(data);
+  };
+
+  const addWord = async (e) => {
+    e.preventDefault();
+
+    if (!english || !arabic) return;
+
+    const { error } = await supabase.from("words").insert({
+      english,
+      arabic,
+      user_id: session.user.id,
+    });
+
+    if (!error) {
+      setEnglish("");
+      setArabic("");
+      fetchWords();
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0C10]">
-      <header className="bg-[#111318]/70 border-b border-white/10 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center">
-                    <Bot className="text-white w-5 h-5" />
-                  </div>
-                  <span className="font-bold text-xl tracking-tight text-white">Lingua<span className="text-sky-400">Flow</span></span>
-                </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-2 text-gray-400">
-                <User className="w-5 h-5" />
-                <span className="text-sm">
-                  {session?.user?.user_metadata?.userName || session?.user?.email}
-                </span>
+    <div className="min-h-screen bg-gradient-to-b from-[#0a0a0c] to-[#1a1c20] text-white">
+
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 w-full backdrop-blur-xl bg-white/5 border-b border-white/10 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+          {/* Logo */}
+          <Link to="/dashboard" className="text-2xl font-extrabold tracking-wide">
+            <span className="bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+              Linguaflow
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-6">
+
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 transition font-semibold"
+            >
+              <LogOut size={18} /> Logout
+            </button>
+
+          </div>
+        </div>
+      </nav>
+
+      <div className="pt-32 pb-20 max-w-5xl mx-auto px-6">
+
+        {/* Title */}
+        <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-8">
+          Linguaflow Dashboard
+        </h1>
+
+        {/* Add Word */}
+        <div className="backdrop-blur-xl bg-white/5 p-6 rounded-2xl shadow-xl border border-white/10 mb-10">
+          <h2 className="text-2xl font-semibold flex items-center gap-2 mb-6">
+            <PlusCircle className="text-blue-400" /> Add New Word
+          </h2>
+
+          <form onSubmit={addWord} className="flex flex-col md:flex-row gap-4">
+            <input
+              type="text"
+              placeholder="English word..."
+              className="w-full px-4 py-3 bg-[#111318] border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+              value={english}
+              onChange={(e) => setEnglish(e.target.value)}
+            />
+
+            <input
+              type="text"
+              placeholder="Arabic translation..."
+              className="w-full px-4 py-3 bg-[#111318] border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+              value={arabic}
+              onChange={(e) => setArabic(e.target.value)}
+            />
+
+            <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold transition">
+              Add
+            </button>
+          </form>
+        </div>
+
+        {/* Words List */}
+        <div className="backdrop-blur-xl bg-white/5 p-6 rounded-2xl shadow-xl border border-white/10">
+          <h2 className="text-2xl font-semibold flex items-center gap-2 mb-6">
+            <Book className="text-purple-400" /> My Vocabulary
+          </h2>
+
+          <div className="space-y-3">
+            {words.length === 0 && (
+              <p className="text-gray-400">No words added yet.</p>
+            )}
+
+            {words.map((word) => (
+              <div key={word.id} className="bg-[#111318] border border-white/10 rounded-xl px-4 py-3 flex justify-between">
+                <span className="font-bold text-blue-300">{word.english}</span>
+                <span className="text-green-300">{word.arabic}</span>
               </div>
-              
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 
-                  text-red-400 rounded-lg border border-red-500/20 transition-all"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
-            </div>
+            ))}
           </div>
+
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Welcome back! 👋
-          </h1>
-          <p className="text-gray-400">
-            You're logged in as {session?.user?.email}
-          </p>
-        </div>
-
-        {/* Dashboard Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-[#111318]/70 border border-white/10 backdrop-blur-xl p-6 rounded-2xl">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Start Learning
-            </h3>
-            <p className="text-gray-400 text-sm">
-              Begin your language learning journey with AI-powered lessons.
-            </p>
-          </div>
-
-          <div className="bg-[#111318]/70 border border-white/10 backdrop-blur-xl p-6 rounded-2xl">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Your Progress
-            </h3>
-            <p className="text-gray-400 text-sm">
-              Track your learning progress and achievements.
-            </p>
-          </div>
-
-          <div className="bg-[#111318]/70 border border-white/10 backdrop-blur-xl p-6 rounded-2xl">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Practice
-            </h3>
-            <p className="text-gray-400 text-sm">
-              Practice with interactive exercises and quizzes.
-            </p>
-          </div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 };
