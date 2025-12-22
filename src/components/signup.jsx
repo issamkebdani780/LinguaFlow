@@ -53,7 +53,7 @@ const SignUp = () => {
       if (signUpError) {
         setError(signUpError.message);
       } else {
-        navigate("/dashboard");
+        navigate("/ConfiremeEmail");
       }
     } catch (error) {
       setError("An unexpected error occurred");
@@ -130,32 +130,32 @@ const SignUp = () => {
           </div>
 
           <div>
-  <label className="text-gray-300 text-sm">Password</label>
-  <div className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
-    rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all relative">
-    
-    <Lock className="w-5 h-5 text-sky-400" />
+            <label className="text-gray-300 text-sm">Password</label>
+            <div
+              className="mt-2 flex items-center gap-3 bg-white/5 border border-white/10 
+    rounded-xl px-4 py-3 focus-within:border-sky-500 transition-all relative"
+            >
+              <Lock className="w-5 h-5 text-sky-400" />
 
-    <input
-      value={userPassword}
-      onChange={(e) => setUserPassword(e.target.value)}
-      type={showPassword ? "text" : "password"}
-      required
-      className="bg-transparent text-gray-200 w-full outline-none placeholder-gray-400"
-      placeholder="••••••••"
-    />
+              <input
+                value={userPassword}
+                onChange={(e) => setUserPassword(e.target.value)}
+                type={showPassword ? "text" : "password"}
+                required
+                className="bg-transparent text-gray-200 w-full outline-none placeholder-gray-400"
+                placeholder="••••••••"
+              />
 
-    {/* Toggle Button */}
-    <button
-      type="button"
-      onClick={() => setShowPassword(!showPassword)}
-      className="absolute right-4 text-gray-400 hover:text-white"
-    >
-      {showPassword ? "🙈" : "👁️"}
-    </button>
-  </div>
-</div>
-
+              {/* Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 text-gray-400 hover:text-white"
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+          </div>
 
           <button
             type="submit"
