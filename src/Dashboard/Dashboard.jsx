@@ -7,8 +7,6 @@ import Chatbot from "./Chatbot";
 
 const Dashboard = () => {
   const { session, signOut } = UserAuth();
-  
-
   const [english, setEnglish] = useState("");
   const [arabic, setArabic] = useState("");
   const [words, setWords] = useState([]);

@@ -19,6 +19,7 @@ const Chatbot = ({ userId }) => {
     setMessages((prev) => [...prev, userMessage]);
 
     try {
+      setInput("");
       // Send message + user_id to n8n webhook
       const { data } = await axios.post(WEBHOOK_URL, {
         user_id: userId,
@@ -26,6 +27,7 @@ const Chatbot = ({ userId }) => {
       });
 
       // Add bot reply
+      console.log(data.response)
       const botMessage = { sender: "bot", text: data.response || "No reply from bot." };
       setMessages((prev) => [...prev, botMessage]);
 
@@ -34,8 +36,6 @@ const Chatbot = ({ userId }) => {
       const botMessage = { sender: "bot", text: "Error contacting chatbot." };
       setMessages((prev) => [...prev, botMessage]);
     }
-
-    setInput("");
   };
 
   return (
