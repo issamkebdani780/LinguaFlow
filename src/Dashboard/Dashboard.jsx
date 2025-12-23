@@ -31,6 +31,12 @@ const Dashboard = ({ onLogout }) => {
   const [words, setWords] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Edit Modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingWord, setEditingWord] = useState(null);
+  const [editEnglish, setEditEnglish] = useState("");
+  const [editArabic, setEditArabic] = useState("");
+
   const filteredWords = words.filter(
     (word) =>
       word.english.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,6 +55,7 @@ const Dashboard = ({ onLogout }) => {
   const [chatInput, setChatInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch words on mount
   useEffect(() => {
     if (!session?.user) return;
 
@@ -64,12 +71,13 @@ const Dashboard = ({ onLogout }) => {
         return;
       }
 
-      setWords(data);
+      setWords(data || []);
     };
 
     fetchWords();
   }, [session]);
 
+  // Add Word - FIXED
   const handleAddWord = async (e) => {
     e.preventDefault();
 
@@ -80,46 +88,97 @@ const Dashboard = ({ onLogout }) => {
       .insert([
         {
           user_id: session.user.id,
-          english: newWord,
-          arabic: arabicTranslation,
+          english: newWord.trim(),
+          arabic: arabicTranslation.trim(),
         },
       ])
+      .select() // ✅ FIXED: Use .select() to get returned data
       .single();
 
     if (error) {
       console.error("Error inserting word:", error.message);
+      alert("Failed to add word: " + error.message);
       return;
     }
 
+    // Add to state
     setWords((prev) => [data, ...prev]);
     setNewWord("");
     setArabicTranslation("");
   };
 
+  // Delete Word - FIXE
   const handleDeleteWord = async (id) => {
-    console.log("Deleting word with id:", id, "for user:", session.user.id);
-    const { data, error } = await supabase
+    console.log("Attempting to delete word:", id);
+    console.log("Current user ID:", session?.user?.id);
+
+    const { error } = await supabase
       .from("words")
       .delete()
       .eq("id", id)
       .eq("user_id", session.user.id);
 
     if (error) {
-      console.error("Error deleting word:", error.message);
+      console.error("Error deleting word:", error);
+      alert("Failed to delete word: " + error.message);
       return;
     }
 
-    console.log("Deleted data:", data);
+    console.log("Word deleted successfully");
     setWords((prevWords) => prevWords.filter((word) => word.id !== id));
   };
 
+  // Open Edit Modal - FIXED
+  const handleOpenEditModal = (word) => {
+    setEditingWord(word);
+    setEditEnglish(word.english);
+    setEditArabic(word.arabic);
+    setIsEditModalOpen(true);
+  };
+
+  // Update Word - FIXED
+  const handleUpdateWord = async (e) => {
+    e.preventDefault();
+
+    if (!editEnglish.trim() || !editArabic.trim()) return;
+
+    const { data, error } = await supabase
+      .from("words")
+      .update({
+        english: editEnglish.trim(),
+        arabic: editArabic.trim(),
+      })
+      .eq("id", editingWord.id)
+      .eq("user_id", session.user.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating word:", error);
+      alert("Failed to update word: " + error.message);
+      return;
+    }
+
+    // Update state
+    setWords((prevWords) =>
+      prevWords.map((word) => (word.id === editingWord.id ? data : word))
+    );
+
+    // Close modal
+    setIsEditModalOpen(false);
+    setEditingWord(null);
+    setEditEnglish("");
+    setEditArabic("");
+  };
+
+  // Send Message to Webhook - FIXED
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
     const userMessage = chatInput;
 
-    // show user message instantly
+    // Show user message instantly
     setChatMessages((prev) => [
       ...prev,
       {
@@ -141,8 +200,9 @@ const Dashboard = ({ onLogout }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId: session.user.id, // ✅ session user id
-            message: userMessage, // ✅ user message
+            userId: session.user.id, // ✅ User ID from session
+            message: userMessage, // ✅ User message
+            timestamp: new Date().toISOString(),
           }),
         }
       );
@@ -166,26 +226,13 @@ const Dashboard = ({ onLogout }) => {
         {
           id: Date.now() + 1,
           type: "bot",
-          message: "Error communicating with AI service.",
+          message: "Error communicating with AI service. Please try again.",
         },
       ]);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // const handleUpdateWord = async (id) => {
-  //   const {data, error} = await supabase.from("words").
-  //   update({english : "" , arabic:"" })
-  //   .eq("id" , id)
-
-  //   if (error) {
-  //     console.log("deletion error: ", error)
-  //     return;
-  //   }
-    
-  //   setWords((prevWords) => prevWords.filter((word) => word.id !== id));
-  // }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white flex">
@@ -282,7 +329,9 @@ const Dashboard = ({ onLogout }) => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
-                  {session?.user?.user_metadata?.username || "User"}
+                  {session?.user?.user_metadata?.username ||
+                    session?.user?.email ||
+                    "User"}
                 </p>
                 <p className="text-xs text-gray-400">Pro Member</p>
               </div>
@@ -431,7 +480,6 @@ const Dashboard = ({ onLogout }) => {
                   </div>
                 ) : (
                   filteredWords.map((word) => (
-                    
                     <div
                       key={word.id}
                       className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-sky-400/30 transition-all group"
@@ -455,9 +503,10 @@ const Dashboard = ({ onLogout }) => {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => handleUpdateWord(word.id) }
-                            className="text-gray-400 hover:text-sky-400 transition-colors p-2 rounded-lg hover:bg-white/5">
+                          <button
+                            onClick={() => handleOpenEditModal(word)}
+                            className="text-gray-400 hover:text-sky-400 transition-colors p-2 rounded-lg hover:bg-white/5"
+                          >
                             <Edit className="w-5 h-5" />
                           </button>
                           <button
@@ -607,6 +656,66 @@ const Dashboard = ({ onLogout }) => {
           )}
         </main>
       </div>
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-md p-8 rounded-3xl bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 m-4">
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 mb-4">
+                <Edit className="text-white w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold text-white">Edit Word</h2>
+              <p className="text-gray-400 text-sm mt-2">
+                Update your vocabulary
+              </p>
+            </div>
+
+            <form onSubmit={handleUpdateWord} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  English Word
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editEnglish}
+                  onChange={(e) => setEditEnglish(e.target.value)}
+                  className="w-full bg-[#0B0C10]/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition-all"
+                  placeholder="English word"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  Arabic Translation
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editArabic}
+                  onChange={(e) => setEditArabic(e.target.value)}
+                  className="w-full bg-[#0B0C10]/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition-all"
+                  placeholder="Arabic translation"
+                  dir="rtl"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-3 rounded-xl bg-sky-600 text-white font-bold hover:bg-sky-500 transition-colors"
+              >
+                Update Word
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Overlay */}
       {isSidebarOpen && (
