@@ -77,7 +77,7 @@ const Dashboard = ({ onLogout }) => {
     fetchWords();
   }, [session]);
 
-  // Add Word - FIXED
+  // Add Word 
   const handleAddWord = async (e) => {
     e.preventDefault();
 
@@ -92,7 +92,7 @@ const Dashboard = ({ onLogout }) => {
           arabic: arabicTranslation.trim(),
         },
       ])
-      .select() // ✅ FIXED: Use .select() to get returned data
+      .select() 
       .single();
 
     if (error) {
@@ -107,7 +107,7 @@ const Dashboard = ({ onLogout }) => {
     setArabicTranslation("");
   };
 
-  // Delete Word - FIXE
+  // Delete Word 
   const handleDeleteWord = async (id) => {
     console.log("Attempting to delete word:", id);
     console.log("Current user ID:", session?.user?.id);
@@ -128,7 +128,7 @@ const Dashboard = ({ onLogout }) => {
     setWords((prevWords) => prevWords.filter((word) => word.id !== id));
   };
 
-  // Open Edit Modal - FIXED
+  // Open Edit Modal 
   const handleOpenEditModal = (word) => {
     setEditingWord(word);
     setEditEnglish(word.english);
@@ -136,7 +136,7 @@ const Dashboard = ({ onLogout }) => {
     setIsEditModalOpen(true);
   };
 
-  // Update Word - FIXED
+  // Update Word 
   const handleUpdateWord = async (e) => {
     e.preventDefault();
 
@@ -171,7 +171,7 @@ const Dashboard = ({ onLogout }) => {
     setEditArabic("");
   };
 
-  // Send Message to Webhook - FIXED
+  // Send Message to Webhook 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -200,14 +200,16 @@ const Dashboard = ({ onLogout }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId: session.user.id, // ✅ User ID from session
-            message: userMessage, // ✅ User message
+            userId: session.user.id, 
+            message: userMessage, 
             timestamp: new Date().toISOString(),
           }),
         }
       );
+      console.log("Webhook response :", response);
 
       const data = await response.json();
+      console.log("Webhook data :", data.output);
 
       setChatMessages((prev) => [
         ...prev,
@@ -215,7 +217,7 @@ const Dashboard = ({ onLogout }) => {
           id: Date.now() + 1,
           type: "bot",
           message:
-            data.message || data.response || "Message received successfully.",
+            data.output || "Message received successfully.",
         },
       ]);
     } catch (error) {
