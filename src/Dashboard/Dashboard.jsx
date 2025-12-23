@@ -84,7 +84,6 @@ const Dashboard = ({ onLogout }) => {
           arabic: arabicTranslation,
         },
       ])
-      .select()
       .single();
 
     if (error) {
@@ -98,22 +97,21 @@ const Dashboard = ({ onLogout }) => {
   };
 
   const handleDeleteWord = async (id) => {
-  const { data, error } = await supabase
-    .from("words")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", session.user.id)
-    .select();
+    console.log("Deleting word with id:", id, "for user:", session.user.id);
+    const { data, error } = await supabase
+      .from("words")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", session.user.id);
 
-  if (error) {
-    console.error("Error deleting word:", error.message);
-    return;
-  }
+    if (error) {
+      console.error("Error deleting word:", error.message);
+      return;
+    }
 
-  console.log("Deleted data:", data);
-  setWords((prevWords) => prevWords.filter((word) => word.id !== id));
-};
-
+    console.log("Deleted data:", data);
+    setWords((prevWords) => prevWords.filter((word) => word.id !== id));
+  };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -175,6 +173,19 @@ const Dashboard = ({ onLogout }) => {
       setIsLoading(false);
     }
   };
+
+  // const handleUpdateWord = async (id) => {
+  //   const {data, error} = await supabase.from("words").
+  //   update({english : "" , arabic:"" })
+  //   .eq("id" , id)
+
+  //   if (error) {
+  //     console.log("deletion error: ", error)
+  //     return;
+  //   }
+    
+  //   setWords((prevWords) => prevWords.filter((word) => word.id !== id));
+  // }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white flex">
@@ -420,6 +431,7 @@ const Dashboard = ({ onLogout }) => {
                   </div>
                 ) : (
                   filteredWords.map((word) => (
+                    
                     <div
                       key={word.id}
                       className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-sky-400/30 transition-all group"
@@ -443,7 +455,9 @@ const Dashboard = ({ onLogout }) => {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button className="text-gray-400 hover:text-sky-400 transition-colors p-2 rounded-lg hover:bg-white/5">
+                          <button 
+                            onClick={() => handleUpdateWord(word.id) }
+                            className="text-gray-400 hover:text-sky-400 transition-colors p-2 rounded-lg hover:bg-white/5">
                             <Edit className="w-5 h-5" />
                           </button>
                           <button
