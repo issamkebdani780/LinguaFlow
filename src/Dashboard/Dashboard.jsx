@@ -77,7 +77,7 @@ const Dashboard = ({ onLogout }) => {
     fetchWords();
   }, [session]);
 
-  // Add Word 
+  // Add Word
   const handleAddWord = async (e) => {
     e.preventDefault();
 
@@ -92,7 +92,7 @@ const Dashboard = ({ onLogout }) => {
           arabic: arabicTranslation.trim(),
         },
       ])
-      .select() 
+      .select()
       .single();
 
     if (error) {
@@ -107,7 +107,7 @@ const Dashboard = ({ onLogout }) => {
     setArabicTranslation("");
   };
 
-  // Delete Word 
+  // Delete Word
   const handleDeleteWord = async (id) => {
     console.log("Attempting to delete word:", id);
     console.log("Current user ID:", session?.user?.id);
@@ -128,7 +128,7 @@ const Dashboard = ({ onLogout }) => {
     setWords((prevWords) => prevWords.filter((word) => word.id !== id));
   };
 
-  // Open Edit Modal 
+  // Open Edit Modal
   const handleOpenEditModal = (word) => {
     setEditingWord(word);
     setEditEnglish(word.english);
@@ -136,7 +136,7 @@ const Dashboard = ({ onLogout }) => {
     setIsEditModalOpen(true);
   };
 
-  // Update Word 
+  // Update Word
   const handleUpdateWord = async (e) => {
     e.preventDefault();
 
@@ -171,7 +171,7 @@ const Dashboard = ({ onLogout }) => {
     setEditArabic("");
   };
 
-  // Send Message to Webhook 
+  // Send Message to Webhook
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -193,15 +193,15 @@ const Dashboard = ({ onLogout }) => {
 
     try {
       const response = await fetch(
-        "https://n8n.linguaflo.me/webhook-test/linguaflow",
+        "https://n8n.linguaflo.me/webhook/linguaflow",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId: session.user.id, 
-            message: userMessage, 
+            userId: session.user.id,
+            message: userMessage,
             timestamp: new Date().toISOString(),
           }),
         }
@@ -216,8 +216,7 @@ const Dashboard = ({ onLogout }) => {
         {
           id: Date.now() + 1,
           type: "bot",
-          message:
-            data.output || "Message received successfully.",
+          message: data.output || "Message received successfully.",
         },
       ]);
     } catch (error) {
@@ -237,7 +236,7 @@ const Dashboard = ({ onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex">
+    <div className="h-screen bg-[#050505] text-white flex">
       {/* Sidebar */}
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#0B0C10] border-r border-white/5 transform transition-transform duration-300 ${
@@ -525,10 +524,10 @@ const Dashboard = ({ onLogout }) => {
 
           {/* Chatbot Tab */}
           {activeTab === "chatbot" && (
-            <div className="max-w-4xl mx-auto h-[calc(100vh-200px)] flex flex-col">
-              <div className="flex-1 bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-6 flex flex-col">
-                {/* Chat Messages */}
-                <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+            <div className="max-w-4xl mx-auto h-[calc(100vh-200px)] flex flex-col gap-4">
+              {/* Chat Messages Container  */}
+              <div className="flex-1 bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-6 overflow-y-auto">
+                <div className="space-y-4">
                   {chatMessages.map((msg) => (
                     <div
                       key={msg.id}
@@ -565,8 +564,10 @@ const Dashboard = ({ onLogout }) => {
                     </div>
                   )}
                 </div>
+              </div>
 
-                {/* Chat Input */}
+              {/* Chat Input Container */}
+              <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-6 flex-shrink-0">
                 <form onSubmit={handleSendMessage} className="flex gap-2">
                   <input
                     type="text"
