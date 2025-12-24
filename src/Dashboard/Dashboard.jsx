@@ -492,9 +492,6 @@ const Dashboard = ({ onLogout }) => {
                             <h3 className="text-xl font-bold text-white">
                               {word.english}
                             </h3>
-                            <button className="text-gray-400 hover:text-sky-400 transition-colors">
-                              <Volume2 className="w-5 h-5" />
-                            </button>
                           </div>
                           <p className="text-lg text-gray-400 mb-2" dir="rtl">
                             {word.arabic}
