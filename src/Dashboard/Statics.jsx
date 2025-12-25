@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { supabase } from "../SupabaseClient";
 import {
   Bot,
   Plus,
@@ -14,9 +16,11 @@ import {
   Settings,
   BarChart3,
 } from "lucide-react";
+import { UserAuth } from "../Authcontex";
 
 const Statics = ({ words }) => {
-
+  const {session} = UserAuth();
+  // streak calculation function
   const calculateStreak = (words) => {
     if (!words || words.length === 0) return 0;
 
@@ -48,6 +52,57 @@ const Statics = ({ words }) => {
 
     return streak;
   };
+
+  //learning activity chart
+  const [activity, setActivity] = useState({});
+  useEffect(() => {
+    const fetchActivity = async () => {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+
+      const { data, error } = await supabase
+        .from("words")
+        .select("created_at")
+        .eq("user_id", session.user.id)
+        .gte("created_at", sevenDaysAgo.toISOString());
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      // تهيئة الأيام
+      const days = {};
+      for (let i = 0; i < 7; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        days[key] = 0;
+      }
+
+      // تجميع الكلمات حسب اليوم
+      data.forEach((item) => {
+        const day = item.created_at.slice(0, 10);
+        if (days[day] !== undefined) {
+          days[day]++;
+        }
+      });
+
+      setActivity(days);
+    };
+
+    fetchActivity();
+  }, [session.user.id]);
+
+  const chartData = Object.entries(activity)
+    .sort(([a], [b]) => new Date(a) - new Date(b))
+    .map(([date, count]) => {
+      const dayName = new Date(date).toLocaleDateString("en-US", {
+        weekday: "short",
+      });
+      return { day: dayName, value: count };
+    });
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -107,7 +162,9 @@ const Statics = ({ words }) => {
             <h3 className="text-gray-400 text-sm font-medium">Streak</h3>
             <span className="text-2xl">🔥</span>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{calculateStreak(words)}</p>
+          <p className="text-4xl font-bold text-white mb-1">
+            {calculateStreak(words)}
+          </p>
           <p className="text-xs text-orange-400">days in a row</p>
         </div>
       </div>
@@ -127,29 +184,29 @@ const Statics = ({ words }) => {
             </div>
           </div>
           <div className="space-y-3">
-            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-              (day, index) => {
-                const value = Math.floor(Math.random() * 10);
-                const percentage = (value / 10) * 100;
-                return (
-                  <div key={day} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-400 w-10">{day}</span>
-                    <div className="flex-1 bg-[#0B0C10]/50 rounded-full h-8 overflow-hidden border border-white/5">
-                      <div
-                        className="h-full bg-gradient-to-r from-sky-500 to-indigo-500 flex items-center justify-end pr-3 transition-all duration-500"
-                        style={{ width: `${percentage}%` }}
-                      >
-                        {value > 0 && (
-                          <span className="text-xs font-bold text-white">
-                            {value}
-                          </span>
-                        )}
-                      </div>
+            {chartData.map(({ day, value }) => {
+              const max = Math.max(...chartData.map((d) => d.value), 1);
+              const percentage = (value / max) * 100;
+
+              return (
+                <div key={day} className="flex items-center gap-3">
+                  <span className="text-sm text-gray-400 w-10">{day}</span>
+
+                  <div className="flex-1 bg-[#0B0C10]/50 rounded-full h-8 overflow-hidden border border-white/5">
+                    <div
+                      className="h-full bg-gradient-to-r from-sky-500 to-indigo-500 flex items-center justify-end pr-3 transition-all duration-500"
+                      style={{ width: `${percentage}%` }}
+                    >
+                      {value > 0 && (
+                        <span className="text-xs font-bold text-white">
+                          {value}
+                        </span>
+                      )}
                     </div>
                   </div>
-                );
-              }
-            )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
