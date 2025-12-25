@@ -16,6 +16,39 @@ import {
 } from "lucide-react";
 
 const Statics = ({ words }) => {
+
+  const calculateStreak = (words) => {
+    if (!words || words.length === 0) return 0;
+
+    // 1. استخراج الأيام الفريدة
+    const daysSet = new Set(
+      words.map((w) => {
+        const d = new Date(w.created_at);
+        d.setHours(0, 0, 0, 0); // تجاهل الوقت
+        return d.getTime();
+      })
+    );
+
+    // 2. ترتيب الأيام تنازليًا
+    const days = Array.from(daysSet).sort((a, b) => b - a);
+
+    let streak = 0;
+    let currentDay = new Date();
+    currentDay.setHours(0, 0, 0, 0);
+
+    // 3. حساب الأيام المتتالية
+    for (let day of days) {
+      if (day === currentDay.getTime()) {
+        streak++;
+        currentDay.setDate(currentDay.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Stats Cards */}
@@ -74,7 +107,7 @@ const Statics = ({ words }) => {
             <h3 className="text-gray-400 text-sm font-medium">Streak</h3>
             <span className="text-2xl">🔥</span>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">7</p>
+          <p className="text-4xl font-bold text-white mb-1">{calculateStreak(words)}</p>
           <p className="text-xs text-orange-400">days in a row</p>
         </div>
       </div>

@@ -24,7 +24,7 @@ import ChatBot from "./ChatBot"
 import Setings from "./Setings"
 
 
-const Dashboard = ({ onLogout }) => {
+const Dashboard = () => {
   const { session } = UserAuth();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -266,7 +266,6 @@ const Dashboard = ({ onLogout }) => {
                 <p className="text-xs text-gray-400">Pro Member</p>
               </div>
               <button
-                onClick={onLogout}
                 className="text-gray-400 hover:text-red-400 transition-colors"
                 title="Logout"
               >
