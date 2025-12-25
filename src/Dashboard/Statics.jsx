@@ -141,12 +141,12 @@ const Statics = ({ words }) => {
     let minutes = 0;
 
     messages.forEach((row) => {
-      const msg = row.message; // <-- row.message هو Object
+      const msg = row.message; 
 
       if (!msg) return;
 
       if (msg.type === "human") minutes += 0.2;
-      if (msg.type === "ai") minutes += 1;
+      if (msg.type === "ai") minutes += 0.4;
     });
 
     return Number(minutes.toFixed(1));
@@ -360,11 +360,12 @@ const Statics = ({ words }) => {
               <span className="text-2xl">💪</span>
               <h4 className="font-semibold text-green-400">Strengths</h4>
             </div>
-            <ul className="space-y-1 text-sm text-gray-300">
+            {/* <ul className="space-y-1 text-sm text-gray-300">
               <li>• Strong with nouns</li>
               <li>• Good vocabulary retention</li>
               <li>• Consistent daily practice</li>
-            </ul>
+            </ul> */}
+            <span className="text-sm text-gray-400">will added in the future</span> 
           </div>
 
           <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl">
@@ -372,11 +373,12 @@ const Statics = ({ words }) => {
               <span className="text-2xl">⚠️</span>
               <h4 className="font-semibold text-orange-400">Needs Practice</h4>
             </div>
-            <ul className="space-y-1 text-sm text-gray-300">
+            {/* <ul className="space-y-1 text-sm text-gray-300">
               <li>• Verbs in past tense</li>
               <li>• Pronunciation accuracy</li>
               <li>• Complex sentences</li>
-            </ul>
+            </ul> */}
+            <span className="text-sm text-gray-400">will added in the future</span> 
           </div>
 
           <div className="p-4 bg-sky-500/10 border border-sky-500/20 rounded-xl">
@@ -384,11 +386,12 @@ const Statics = ({ words }) => {
               <span className="text-2xl">💡</span>
               <h4 className="font-semibold text-sky-400">Recommendations</h4>
             </div>
-            <ul className="space-y-1 text-sm text-gray-300">
+            {/* <ul className="space-y-1 text-sm text-gray-300">
               <li>• Focus on verb conjugation</li>
               <li>• Practice pronunciation daily</li>
               <li>• Review old words weekly</li>
-            </ul>
+            </ul> */}
+            <span className="text-sm text-gray-400">will added in the future</span> 
           </div>
         </div>
 
@@ -397,9 +400,7 @@ const Statics = ({ words }) => {
             <span className="font-semibold text-white">
               "You're doing great!
             </span>{" "}
-            You remember nouns well, but verbs in past tense need more practice.
-            Try using them in sentences with the AI chat. Keep up your 7-day
-            streak! 🎯"
+            Try using your words in sentences with the AI chat. Keep up your {calculateStreak(words)} day streak! 🎯"
           </p>
         </div>
       </div>
