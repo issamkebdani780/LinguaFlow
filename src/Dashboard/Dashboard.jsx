@@ -259,11 +259,9 @@ const Dashboard = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
-                  {session?.user?.user_metadata?.username ||
-                    session?.user?.email ||
+                  {session?.user.user_metadata.userName ||
                     "User"}
                 </p>
-                <p className="text-xs text-gray-400">Pro Member</p>
               </div>
               <button
                 className="text-gray-400 hover:text-red-400 transition-colors"

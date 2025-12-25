@@ -19,7 +19,7 @@ import {
 import { UserAuth } from "../Authcontex";
 
 const Statics = ({ words }) => {
-  const {session} = UserAuth();
+  const { session } = UserAuth();
   // streak calculation function
   const calculateStreak = (words) => {
     if (!words || words.length === 0) return 0;
@@ -51,6 +51,36 @@ const Statics = ({ words }) => {
     }
 
     return streak;
+  };
+
+  const calculateLongestStreak = (words) => {
+    if (!words || words.length === 0) return 0;
+
+    const days = Array.from(
+      new Set(
+        words.map((w) => {
+          const d = new Date(w.created_at);
+          d.setHours(0, 0, 0, 0);
+          return d.getTime();
+        })
+      )
+    ).sort((a, b) => a - b);
+
+    let longest = 1;
+    let current = 1;
+
+    for (let i = 1; i < days.length; i++) {
+      const diff = (days[i] - days[i - 1]) / (1000 * 60 * 60 * 24);
+
+      if (diff === 1) {
+        current++;
+        longest = Math.max(longest, current);
+      } else {
+        current = 1;
+      }
+    }
+
+    return longest;
   };
 
   //learning activity chart
@@ -103,6 +133,46 @@ const Statics = ({ words }) => {
       });
       return { day: dayName, value: count };
     });
+
+  // time spent
+  const calculateAiChatTime = (messages) => {
+    if (!messages || messages.length === 0) return 0;
+
+    let minutes = 0;
+
+    messages.forEach((row) => {
+      const msg = row.message; // <-- row.message هو Object
+
+      if (!msg) return;
+
+      if (msg.type === "human") minutes += 0.2;
+      if (msg.type === "ai") minutes += 1;
+    });
+
+    return Number(minutes.toFixed(1));
+  };
+
+  const [chatMessages, setChatMessages] = useState([]);
+
+  useEffect(() => {
+    const fetchChatMessages = async () => {
+      const { data, error } = await supabase
+        .from("linguaflow_chat_histories")
+        .select("message")
+        .eq("session_id", session.user.id);
+
+      if (error) {
+        console.error("Error fetching chat messages:", error);
+        return;
+      }
+
+      setChatMessages(data || []);
+    };
+
+    if (session.user.id) fetchChatMessages();
+  }, [session.user.id]);
+
+  const aiMinutes = calculateAiChatTime(chatMessages);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -216,7 +286,6 @@ const Statics = ({ words }) => {
             ⏱ Time Spent Learning
           </h3>
           <p className="text-sm text-gray-400 mb-6">This week</p>
-
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
               <div className="flex items-center gap-3">
@@ -229,10 +298,10 @@ const Statics = ({ words }) => {
                 </div>
               </div>
               <p className="text-2xl font-bold text-white">
-                45<span className="text-sm text-gray-400">min</span>
+                {aiMinutes}
+                <span className="text-sm text-gray-400"> min</span>
               </p>
             </div>
-
             <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -244,20 +313,25 @@ const Statics = ({ words }) => {
                 </div>
               </div>
               <p className="text-2xl font-bold text-white">
-                32<span className="text-sm text-gray-400">min</span>
+                <span className="text-sm text-gray-400">will added in the future</span> 
+                {/* 32<span className="text-sm text-gray-400">min</span> */}
               </p>
             </div>
-
             <div className="p-4 bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-white">
                   🔥 Current Streak
                 </p>
-                <p className="text-2xl font-bold text-orange-400">7 days</p>
+                <p className="text-2xl font-bold text-orange-400">
+                  {calculateStreak(words)}
+                </p>
               </div>
               <div className="flex items-center justify-between text-xs text-gray-400">
-                <span>Longest: 12 days</span>
-                <span>Missed: 2 days</span>
+                <span>Longest: {calculateLongestStreak(words)} days</span>
+                <span>
+                  Missed:{" "}
+                  {calculateLongestStreak(words) - calculateStreak(words)} days
+                </span>
               </div>
             </div>
           </div>
