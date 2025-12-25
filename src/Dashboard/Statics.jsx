@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { UserAuth } from "../Authcontex";
 import SelfComparison from "./SelfComparison";
+import LearningGoals from "./LearningGoals";
 
 const Statics = ({ words }) => {
   const { session } = UserAuth();
@@ -409,67 +410,7 @@ const Statics = ({ words }) => {
       {/* Learning Goals & Comparison */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Daily Goals */}
-        <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6">
-          <h3 className="text-lg font-bold text-white mb-1">
-            🎯 Learning Goals
-          </h3>
-          <p className="text-sm text-gray-400 mb-6">
-            Track your daily progress
-          </p>
-
-          <div className="space-y-5">
-            {/* Daily Word Goal */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-white">
-                  Daily Words
-                </span>
-                <span className="text-sm text-sky-400">5 / 10 words</span>
-              </div>
-              <div className="w-full bg-[#0B0C10]/50 rounded-full h-3 overflow-hidden border border-white/5">
-                <div
-                  className="h-full bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full"
-                  style={{ width: "50%" }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">50% of daily goal</p>
-            </div>
-
-            {/* Weekly Revision Goal */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-white">
-                  Weekly Revisions
-                </span>
-                <span className="text-sm text-purple-400">8 / 15 reviews</span>
-              </div>
-              <div className="w-full bg-[#0B0C10]/50 rounded-full h-3 overflow-hidden border border-white/5">
-                <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                  style={{ width: "53%" }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">53% of weekly goal</p>
-            </div>
-
-            {/* Chat Time Goal */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-white">
-                  AI Chat Time
-                </span>
-                <span className="text-sm text-green-400">45 / 60 min</span>
-              </div>
-              <div className="w-full bg-[#0B0C10]/50 rounded-full h-3 overflow-hidden border border-white/5">
-                <div
-                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
-                  style={{ width: "75%" }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">75% of weekly goal</p>
-            </div>
-          </div>
-        </div>
+        <LearningGoals session={session} aiMinutes={aiMinutes} />
 
         {/* Self Comparison */}
         <SelfComparison session={session} />
