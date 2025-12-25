@@ -17,6 +17,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { UserAuth } from "../Authcontex";
+import SelfComparison from "./SelfComparison";
 
 const Statics = ({ words }) => {
   const { session } = UserAuth();
@@ -471,58 +472,7 @@ const Statics = ({ words }) => {
         </div>
 
         {/* Self Comparison */}
-        <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6">
-          <h3 className="text-lg font-bold text-white mb-1">
-            🆚 Your Progress
-          </h3>
-          <p className="text-sm text-gray-400 mb-6">Compare your performance</p>
-
-          <div className="space-y-4">
-            {/* This Week vs Last Week */}
-            <div className="p-4 bg-white/5 rounded-xl border border-white/5">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold text-white">
-                  This Week vs Last Week
-                </h4>
-                <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                  ↑ 23%
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Last Week</p>
-                  <p className="text-2xl font-bold text-gray-500">13</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">This Week</p>
-                  <p className="text-2xl font-bold text-green-400">16</p>
-                </div>
-              </div>
-            </div>
-
-            {/* This Month vs Last Month */}
-            <div className="p-4 bg-white/5 rounded-xl border border-white/5">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold text-white">
-                  This Month vs Last Month
-                </h4>
-                <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                  ↑ 35%
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Last Month</p>
-                  <p className="text-2xl font-bold text-gray-500">52</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">This Month</p>
-                  <p className="text-2xl font-bold text-green-400">70</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SelfComparison session={session} />
       </div>
 
       {/* Achievement Badges */}
