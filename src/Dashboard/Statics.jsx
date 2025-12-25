@@ -19,6 +19,7 @@ import {
 import { UserAuth } from "../Authcontex";
 import SelfComparison from "./SelfComparison";
 import LearningGoals from "./LearningGoals";
+import Achievements from "./Achievements";
 
 const Statics = ({ words }) => {
   const { session } = UserAuth();
@@ -175,7 +176,8 @@ const Statics = ({ words }) => {
   }, [session.user.id]);
 
   const aiMinutes = calculateAiChatTime(chatMessages);
-
+  const longestStreak = calculateLongestStreak(words);
+  const streak = calculateStreak(words);
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Stats Cards */}
@@ -325,11 +327,11 @@ const Statics = ({ words }) => {
                   🔥 Current Streak
                 </p>
                 <p className="text-2xl font-bold text-orange-400">
-                  {calculateStreak(words)}
+                  {streak}
                 </p>
               </div>
               <div className="flex items-center justify-between text-xs text-gray-400">
-                <span>Longest: {calculateLongestStreak(words)} days</span>
+                <span>Longest: {longestStreak} days</span>
                 <span>
                   Missed:{" "}
                   {calculateLongestStreak(words) - calculateStreak(words)} days
@@ -417,31 +419,7 @@ const Statics = ({ words }) => {
       </div>
 
       {/* Achievement Badges */}
-      <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-white mb-6">🏆 Achievements</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl text-center">
-            <span className="text-4xl mb-2 block">🔥</span>
-            <p className="font-bold text-white text-sm">7-Day Streak</p>
-            <p className="text-xs text-gray-400 mt-1">Keep it up!</p>
-          </div>
-          <div className="p-4 bg-gradient-to-br from-sky-500/20 to-blue-500/20 border border-sky-500/30 rounded-xl text-center">
-            <span className="text-4xl mb-2 block">📚</span>
-            <p className="font-bold text-white text-sm">50+ Words</p>
-            <p className="text-xs text-gray-400 mt-1">Vocabulary Builder</p>
-          </div>
-          <div className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl text-center">
-            <span className="text-4xl mb-2 block">⚡</span>
-            <p className="font-bold text-white text-sm">Fast Learner</p>
-            <p className="text-xs text-gray-400 mt-1">10 words in a day</p>
-          </div>
-          <div className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl text-center opacity-50">
-            <span className="text-4xl mb-2 block">🎯</span>
-            <p className="font-bold text-white text-sm">30-Day Learner</p>
-            <p className="text-xs text-gray-400 mt-1">Locked (23 days left)</p>
-          </div>
-        </div>
-      </div>
+      <Achievements session={session} words={words} longestStreak={longestStreak} />
     </div>
   );
 };
