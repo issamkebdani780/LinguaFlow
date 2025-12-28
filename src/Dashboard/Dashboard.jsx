@@ -277,7 +277,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Top Bar */}
-        <header className="bg-[#0B0C10] border-b border-white/5 p-4 lg:p-6">
+        <header className="bg-[#0B0C10] border-b border-white/5 p-4 lg:p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
