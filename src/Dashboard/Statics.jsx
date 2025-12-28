@@ -343,7 +343,7 @@ const Statics = ({ words }) => {
       </div>
 
       {/* AI-Driven Smart Insights */}
-      <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6">
+      {/* <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center">
             <Bot className="w-6 h-6 text-white" />
@@ -364,11 +364,7 @@ const Statics = ({ words }) => {
               <span className="text-2xl">💪</span>
               <h4 className="font-semibold text-green-400">Strengths</h4>
             </div>
-            {/* <ul className="space-y-1 text-sm text-gray-300">
-              <li>• Strong with nouns</li>
-              <li>• Good vocabulary retention</li>
-              <li>• Consistent daily practice</li>
-            </ul> */}
+           
             <span className="text-sm text-gray-400">will added in the future</span> 
           </div>
 
@@ -377,11 +373,7 @@ const Statics = ({ words }) => {
               <span className="text-2xl">⚠️</span>
               <h4 className="font-semibold text-orange-400">Needs Practice</h4>
             </div>
-            {/* <ul className="space-y-1 text-sm text-gray-300">
-              <li>• Verbs in past tense</li>
-              <li>• Pronunciation accuracy</li>
-              <li>• Complex sentences</li>
-            </ul> */}
+            
             <span className="text-sm text-gray-400">will added in the future</span> 
           </div>
 
@@ -390,11 +382,7 @@ const Statics = ({ words }) => {
               <span className="text-2xl">💡</span>
               <h4 className="font-semibold text-sky-400">Recommendations</h4>
             </div>
-            {/* <ul className="space-y-1 text-sm text-gray-300">
-              <li>• Focus on verb conjugation</li>
-              <li>• Practice pronunciation daily</li>
-              <li>• Review old words weekly</li>
-            </ul> */}
+            
             <span className="text-sm text-gray-400">will added in the future</span> 
           </div>
         </div>
@@ -407,7 +395,7 @@ const Statics = ({ words }) => {
             Try using your words in sentences with the AI chat. Keep up your {calculateStreak(words)} day streak! 🎯"
           </p>
         </div>
-      </div>
+      </div> */}
 
       {/* Learning Goals & Comparison */}
       <div className="grid lg:grid-cols-2 gap-6">

@@ -19,9 +19,6 @@ const Setings = ({ session }) => {
     achievementAlerts: true,
   });
 
-  // Language Settings
-  const [language, setLanguage] = useState("en");
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -33,7 +30,7 @@ const Setings = ({ session }) => {
       try {
         // Get user data from auth
         const { data: authData } = await supabase.auth.getUser();
-        
+
         setEmail(authData?.user?.email || "");
         setUsername(authData?.user?.user_metadata?.username || "");
 
@@ -60,12 +57,12 @@ const Setings = ({ session }) => {
   const handleSaveAccount = async () => {
     setSaving(true);
     try {
-      // Update username in user_metadata
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: { username: username },
+      const { error } = await supabase.auth.updateUser({
+        email: email, // تحديث البريد الإلكتروني
+        data: { username: username }, // تحديث الـ username
       });
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       alert("Account settings updated successfully!");
     } catch (error) {
@@ -127,24 +124,6 @@ const Setings = ({ session }) => {
     }
   };
 
-  // Save Language Settings
-  const handleSaveLanguage = async () => {
-    setSaving(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: { language: language },
-      });
-
-      if (error) throw error;
-
-      alert("Language preference saved!");
-    } catch (error) {
-      console.error("Error saving language:", error);
-      alert("Failed to save language: " + error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Account Settings */}
@@ -155,7 +134,9 @@ const Setings = ({ session }) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-white">Account Settings</h2>
-            <p className="text-sm text-gray-400">Manage your account information</p>
+            <p className="text-sm text-gray-400">
+              Manage your account information
+            </p>
           </div>
         </div>
 
@@ -174,7 +155,7 @@ const Setings = ({ session }) => {
             />
           </div>
 
-          {/* Email (Read-only) */}
+          {/* Email*/}
           <div>
             <label className="text-sm font-medium text-gray-400 mb-2">
               Email Address
@@ -184,7 +165,9 @@ const Setings = ({ session }) => {
               <input
                 type="email"
                 value={email}
-                className="w-full bg-[#0B0C10]/30 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-gray-500"
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-[#0B0C10]/30 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition-all"
+                placeholder="Enter email"
               />
             </div>
           </div>
@@ -231,7 +214,11 @@ const Setings = ({ session }) => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>
@@ -269,7 +256,9 @@ const Setings = ({ session }) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-white">Notifications</h2>
-            <p className="text-sm text-gray-400">Configure notification preferences</p>
+            <p className="text-sm text-gray-400">
+              Configure notification preferences
+            </p>
           </div>
         </div>
 
@@ -277,15 +266,22 @@ const Setings = ({ session }) => {
           {/* Email Notifications */}
           <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
             <div>
-              <p className="text-white font-medium text-sm">Email Notifications</p>
-              <p className="text-xs text-gray-400">Receive notifications via email</p>
+              <p className="text-white font-medium text-sm">
+                Email Notifications
+              </p>
+              <p className="text-xs text-gray-400">
+                Receive notifications via email
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={notifications.emailNotifications}
                 onChange={(e) =>
-                  setNotifications({ ...notifications, emailNotifications: e.target.checked })
+                  setNotifications({
+                    ...notifications,
+                    emailNotifications: e.target.checked,
+                  })
                 }
                 className="sr-only peer"
               />
@@ -297,14 +293,19 @@ const Setings = ({ session }) => {
           <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
             <div>
               <p className="text-white font-medium text-sm">Daily Reminders</p>
-              <p className="text-xs text-gray-400">Get daily learning reminders</p>
+              <p className="text-xs text-gray-400">
+                Get daily learning reminders
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={notifications.dailyReminders}
                 onChange={(e) =>
-                  setNotifications({ ...notifications, dailyReminders: e.target.checked })
+                  setNotifications({
+                    ...notifications,
+                    dailyReminders: e.target.checked,
+                  })
                 }
                 className="sr-only peer"
               />
@@ -316,14 +317,19 @@ const Setings = ({ session }) => {
           <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
             <div>
               <p className="text-white font-medium text-sm">Weekly Reports</p>
-              <p className="text-xs text-gray-400">Receive weekly progress reports</p>
+              <p className="text-xs text-gray-400">
+                Receive weekly progress reports
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={notifications.weeklyReports}
                 onChange={(e) =>
-                  setNotifications({ ...notifications, weeklyReports: e.target.checked })
+                  setNotifications({
+                    ...notifications,
+                    weeklyReports: e.target.checked,
+                  })
                 }
                 className="sr-only peer"
               />
@@ -334,15 +340,22 @@ const Setings = ({ session }) => {
           {/* Achievement Alerts */}
           <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
             <div>
-              <p className="text-white font-medium text-sm">Achievement Alerts</p>
-              <p className="text-xs text-gray-400">Get notified of achievements</p>
+              <p className="text-white font-medium text-sm">
+                Achievement Alerts
+              </p>
+              <p className="text-xs text-gray-400">
+                Get notified of achievements
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={notifications.achievementAlerts}
                 onChange={(e) =>
-                  setNotifications({ ...notifications, achievementAlerts: e.target.checked })
+                  setNotifications({
+                    ...notifications,
+                    achievementAlerts: e.target.checked,
+                  })
                 }
                 className="sr-only peer"
               />
@@ -360,47 +373,6 @@ const Setings = ({ session }) => {
           </button>
         </div>
       </div>
-
-      {/* Language Settings */}
-      {/* <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-8">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
-            <Globe className="w-5 h-5 text-orange-400" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-white">Language</h2>
-            <p className="text-sm text-gray-400">Change interface language</p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
-              Select Language
-            </label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="w-full bg-[#0B0C10]/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition-all cursor-pointer"
-            >
-              <option value="en">English</option>
-              <option value="ar">العربية (Arabic)</option>
-              <option value="fr">Français (French)</option>
-              <option value="es">Español (Spanish)</option>
-              <option value="de">Deutsch (German)</option>
-            </select>
-          </div>
-
-          <button
-            onClick={handleSaveLanguage}
-            disabled={saving}
-            className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Save className="w-5 h-5" />
-            {saving ? "Saving..." : "Save Language Preference"}
-          </button>
-        </div>
-      </div> */}
     </div>
   );
 };
