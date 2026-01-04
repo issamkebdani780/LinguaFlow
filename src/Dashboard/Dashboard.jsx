@@ -25,7 +25,7 @@ import Setings from "./Setings"
 
 
 const Dashboard = () => {
-  const { session } = UserAuth();
+  const { session, signOut } = UserAuth(); // ← Added signOut here
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("add-word");
@@ -48,7 +48,7 @@ const Dashboard = () => {
       word.arabic.includes(searchQuery)
   );
 
-  // Fetch words on mount
+  
   useEffect(() => {
     if (!session?.user) return;
 
@@ -164,6 +164,17 @@ const Dashboard = () => {
     setEditArabic("");
   };
 
+  // Handle Logout
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Supabase will automatically redirect or update session state
+    } catch (error) {
+      console.error("Error logging out:", error);
+      alert("Failed to logout. Please try again.");
+    }
+  };
+
   return (
     <div className="h-screen bg-[#050505] text-white flex">
       {/* Sidebar */}
@@ -264,7 +275,8 @@ const Dashboard = () => {
                 </p>
               </div>
               <button
-                className="text-gray-400 hover:text-red-400 transition-colors"
+                onClick={handleLogout}
+                className="text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
                 title="Logout"
               >
                 <LogOut className="w-5 h-5" />

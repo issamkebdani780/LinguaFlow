@@ -23,9 +23,8 @@ const Settings = () => {
     achievementAlerts: true,
   });
 
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false)
 
-  // ✅ Handle Email Confirmation from redirect
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -101,10 +100,10 @@ const Settings = () => {
         const savedNotifications = authData?.user?.user_metadata?.notifications;
         if (savedNotifications) setNotifications(savedNotifications);
 
-        setLoading(false);
+        
       } catch (error) {
         console.error("Error fetching settings:", error);
-        setLoading(false);
+        
       }
     };
 
@@ -222,11 +221,8 @@ const Settings = () => {
             achievementAlerts: prefs.achievement_alerts,
           });
         }
-
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching settings:", error);
-        setLoading(false);
       }
     };
 
@@ -246,7 +242,7 @@ const Settings = () => {
           achievement_alerts: notifications.achievementAlerts,
         },
         {
-          onConflict: "user_id", // Update if user_id already exists
+          onConflict: "user_id",
         }
       );
 
