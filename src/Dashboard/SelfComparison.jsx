@@ -8,42 +8,53 @@ const SelfComparison = ({ session }) => {
   const [lastMonthCount, setLastMonthCount] = useState(0);
 
   useEffect(() => {
-    if (!session.user.id) return;
+    if (!session?.user?.id) return;
 
     const fetchData = async () => {
-      const { data: weekData, error: weekError } = await supabase
+      const { data, error } = await supabase
         .from("words")
         .select("created_at")
         .eq("user_id", session.user.id);
 
-      if (weekError) {
-        console.error("Error fetching learned words:", weekError);
+      if (error) {
+        console.error(error);
         return;
       }
 
       const now = new Date();
-      const startOfThisWeek = new Date(
-        now.setDate(now.getDate() - now.getDay())
-      ); 
-      const startOfLastWeek = new Date(
-        startOfThisWeek.getTime() - 7 * 24 * 60 * 60 * 1000
+
+      // ===== WEEK =====
+      const currentDay = now.getDay() || 7; // Sunday = 7
+      const startOfThisWeek = new Date(now);
+      startOfThisWeek.setDate(now.getDate() - currentDay + 1);
+      startOfThisWeek.setHours(0, 0, 0, 0);
+
+      const startOfLastWeek = new Date(startOfThisWeek);
+      startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
+
+      const endOfLastWeek = new Date(startOfThisWeek);
+      endOfLastWeek.setMilliseconds(-1);
+
+      // ===== MONTH =====
+      const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfLastMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        1
       );
-      const endOfLastWeek = new Date(startOfThisWeek.getTime() - 1);
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
       let thisWeek = 0;
       let lastWeek = 0;
       let thisMonth = 0;
       let lastMonth = 0;
 
-      const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
-      weekData.forEach((row) => {
-        const created = new Date(row.created_at);
+      data.forEach(({ created_at }) => {
+        const created = new Date(created_at);
 
         if (created >= startOfThisWeek) thisWeek++;
-        else if (created >= startOfLastWeek && created <= endOfLastWeek) lastWeek++;
+        else if (created >= startOfLastWeek && created <= endOfLastWeek)
+          lastWeek++;
 
         if (created >= startOfThisMonth) thisMonth++;
         else if (created >= startOfLastMonth && created <= endOfLastMonth)
@@ -89,11 +100,15 @@ const SelfComparison = ({ session }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-gray-400 mb-1">Last Week</p>
-              <p className="text-2xl font-bold text-gray-500">{lastWeekCount}</p>
+              <p className="text-2xl font-bold text-gray-500">
+                {lastWeekCount}
+              </p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-1">This Week</p>
-              <p className="text-2xl font-bold text-green-400">{thisWeekCount}</p>
+              <p className="text-2xl font-bold text-green-400">
+                {thisWeekCount}
+              </p>
             </div>
           </div>
         </div>
@@ -117,11 +132,15 @@ const SelfComparison = ({ session }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-gray-400 mb-1">Last Month</p>
-              <p className="text-2xl font-bold text-gray-500">{lastMonthCount}</p>
+              <p className="text-2xl font-bold text-gray-500">
+                {lastMonthCount}
+              </p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-1">This Month</p>
-              <p className="text-2xl font-bold text-green-400">{thisMonthCount}</p>
+              <p className="text-2xl font-bold text-green-400">
+                {thisMonthCount}
+              </p>
             </div>
           </div>
         </div>
