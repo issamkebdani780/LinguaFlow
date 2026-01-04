@@ -23,7 +23,7 @@ function Achievements({ session, words, longestStreak }) {
 
         const dayCounts = data.reduce((acc, row) => {
           const date = new Date(row.created_at);
-          const dayKey = date.toISOString().split("T")[0]; // Example: "2025-12-25"
+          const dayKey = date.toISOString().split("T")[0]; 
           acc[dayKey] = (acc[dayKey] || 0) + 1;
           return acc;
         }, {});
