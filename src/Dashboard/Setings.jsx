@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../SupabaseClient";
 import { User, Bell, Save, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { UserAuth } from "../Authcontex";
+import { useNavigate } from "react-router-dom";
 
-const Settings = ({ session }) => {
+const Settings = () => {
+  const { session } = UserAuth();
+  const navigate = useNavigate();
+
+  console.log(session);
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -16,8 +23,69 @@ const Settings = ({ session }) => {
     achievementAlerts: true,
   });
 
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // ✅ Handle Email Confirmation from redirect
+  useEffect(() => {
+    const handleEmailConfirmation = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const queryParams = new URLSearchParams(window.location.search);
+
+      const accessToken = hashParams.get("access_token");
+      const tokenHash = queryParams.get("token_hash");
+      const type = queryParams.get("type");
+
+      // Handle hash-based confirmation (older method)
+      if (accessToken && hashParams.get("type") === "email_change") {
+        try {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: hashParams.get("refresh_token"),
+          });
+
+          if (error) throw error;
+
+          alert("Email successfully changed!");
+          // Clean up URL and refresh
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
+          window.location.reload();
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Failed to confirm email change: " + error.message);
+        }
+      }
+
+      // Handle PKCE-based confirmation (newer method)
+      if (tokenHash && type === "email_change") {
+        try {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: "email_change",
+          });
+
+          if (error) throw error;
+
+          alert("Email successfully changed!");
+          // Clean up URL and refresh
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
+          window.location.reload();
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Failed to confirm email change: " + error.message);
+        }
+      }
+    };
+
+    handleEmailConfirmation();
+  }, []);
 
   // Fetch user settings
   useEffect(() => {
@@ -26,10 +94,10 @@ const Settings = ({ session }) => {
     const fetchUserSettings = async () => {
       try {
         const { data: authData } = await supabase.auth.getUser();
-        
+
         setEmail(authData?.user?.email || "");
         setUsername(authData?.user?.user_metadata?.username || "");
-        
+
         const savedNotifications = authData?.user?.user_metadata?.notifications;
         if (savedNotifications) setNotifications(savedNotifications);
 
@@ -43,7 +111,7 @@ const Settings = ({ session }) => {
     fetchUserSettings();
   }, [session?.user?.id]);
 
-  // Save Username (in user_metadata)
+  // Save Username
   const handleSaveUsername = async () => {
     if (!username.trim()) {
       alert("Username cannot be empty!");
@@ -53,7 +121,7 @@ const Settings = ({ session }) => {
     setSaving(true);
     try {
       const { error } = await supabase.auth.updateUser({
-        data: { username: username.trim() }
+        data: { username: username.trim() },
       });
 
       if (error) throw error;
@@ -64,27 +132,34 @@ const Settings = ({ session }) => {
     } finally {
       setSaving(false);
     }
+    setUsername("");
   };
 
   // Change Email
-  const handleChangeEmail = async () => {
-    if (!email || !email.includes("@")) {
-      alert("Please enter a valid email address!");
-      return;
-    }
+  // const handleChangeEmail = async () => {
+  //   if (!email || !email.includes("@")) {
+  //     alert("Please enter a valid email address!");
+  //     return;
+  //   }
 
-    setSaving(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ email: email });
-      if (error) throw error;
-      alert("Confirmation email sent! Please check your inbox.");
-    } catch (error) {
-      console.error("Error updating email:", error);
-      alert("Failed to update email: " + error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
+  //   setSaving(true);
+  //   try {
+  //     const { data, error } = await supabase.auth.updateUser({
+  //       email: email, // ✅ lowercase 'email'
+  //     });
+
+  //     if (error) throw error;
+
+  //     alert(
+  //       `Confirmation email sent to ${email}! Please check your inbox and click the confirmation link.`
+  //     );
+  //   } catch (error) {
+  //     console.error("Error updating email:", error);
+  //     alert("Failed to update email: " + error.message);
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
 
   // Change Password
   const handleChangePassword = async () => {
@@ -116,13 +191,64 @@ const Settings = ({ session }) => {
     }
   };
 
-  // Save Notifications
+  // Fetch user preferences from table
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    const fetchUserSettings = async () => {
+      try {
+        // Fetch from auth
+        const { data: authData } = await supabase.auth.getUser();
+        setEmail(authData?.user?.email || "");
+        setUsername(authData?.user?.user_metadata?.username || "");
+
+        // Fetch notifications from table
+        const { data: prefs, error } = await supabase
+          .from("user_preferences")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single();
+
+        if (error && error.code !== "PGRST116") {
+          // PGRST116 = no rows found
+          throw error;
+        }
+
+        if (prefs) {
+          setNotifications({
+            emailNotifications: prefs.email_notifications,
+            dailyReminders: prefs.daily_reminders,
+            weeklyReports: prefs.weekly_reports,
+            achievementAlerts: prefs.achievement_alerts,
+          });
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchUserSettings();
+  }, [session?.user?.id]);
+
+  // Save notifications to table
   const handleSaveNotifications = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: { notifications: notifications },
-      });
+      const { error } = await supabase.from("user_preferences").upsert(
+        {
+          user_id: session.user.id,
+          email_notifications: notifications.emailNotifications,
+          daily_reminders: notifications.dailyReminders,
+          weekly_reports: notifications.weeklyReports,
+          achievement_alerts: notifications.achievementAlerts,
+        },
+        {
+          onConflict: "user_id", // Update if user_id already exists
+        }
+      );
 
       if (error) throw error;
       alert("Notification preferences saved!");
@@ -133,8 +259,6 @@ const Settings = ({ session }) => {
       setSaving(false);
     }
   };
-
-
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -170,7 +294,7 @@ const Settings = ({ session }) => {
       </div>
 
       {/* Email */}
-      <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-8">
+      {/* <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
             <Mail className="w-5 h-5 text-green-400" />
@@ -204,7 +328,7 @@ const Settings = ({ session }) => {
             {saving ? "Sending..." : "Change Email"}
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Password */}
       <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-8">
@@ -232,7 +356,11 @@ const Settings = ({ session }) => {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
             >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
             </button>
           </div>
           <input
@@ -270,16 +398,22 @@ const Settings = ({ session }) => {
             emailNotifications: "Email Notifications",
             dailyReminders: "Daily Reminders",
             weeklyReports: "Weekly Reports",
-            achievementAlerts: "Achievement Alerts"
+            achievementAlerts: "Achievement Alerts",
           }).map(([key, label]) => (
-            <div key={key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+            <div
+              key={key}
+              className="flex items-center justify-between p-4 bg-white/5 rounded-xl"
+            >
               <p className="text-white font-medium text-sm">{label}</p>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   checked={notifications[key]}
                   onChange={(e) =>
-                    setNotifications({ ...notifications, [key]: e.target.checked })
+                    setNotifications({
+                      ...notifications,
+                      [key]: e.target.checked,
+                    })
                   }
                   className="sr-only peer"
                 />

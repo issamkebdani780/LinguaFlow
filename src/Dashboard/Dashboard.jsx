@@ -259,7 +259,7 @@ const Dashboard = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
-                  {session?.user.user_metadata.userName ||
+                  {session.user.user_metadata.username ||
                     "User"}
                 </p>
               </div>
