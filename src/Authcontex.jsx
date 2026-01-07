@@ -21,7 +21,6 @@ export const AuthContextProvider = ({ children }) => {
   return { data, error };
 };
 
-
   // Sign in
   const signin = async (email, password) => {
     try {

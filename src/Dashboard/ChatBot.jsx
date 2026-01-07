@@ -1,21 +1,26 @@
+// src/components/ChatBot.jsx
 import { useEffect, useState, useRef } from "react";
 import { UserAuth } from "../Authcontex";
 import { supabase } from "../SupabaseClient";
-import { Send, Bot, User, Loader2, AlertCircle, Volume2 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import {
+  Send,
+  Bot,
+  User,
+  Loader2,
+  BookOpen,
+  Trash2,
+  Sparkles,
+} from "lucide-react";
 
 const ChatBot = () => {
   const { session } = UserAuth();
+  const [words, setWords] = useState([]);
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState("");
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingHistory, setIsFetchingHistory] = useState(true);
-  const [error, setError] = useState(null);
+  const [wordsLoaded, setWordsLoaded] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
   const messagesEndRef = useRef(null);
-  
-  // Ref to prevent double-fetching in React Strict Mode
-  const hasFetched = useRef(false);
-  const USER_ID = session?.user?.id;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -23,242 +28,341 @@ const ChatBot = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [messages]);
 
-  // Fetch Chat History with Duplicate Prevention
+  // Initialize session and load data
   useEffect(() => {
-    if (!USER_ID || hasFetched.current) return;
+    if (!session?.user) return;
 
-    const fetchChatHistory = async () => {
-      try {
-        setIsFetchingHistory(true);
-        const { data, error: dbError } = await supabase
-          .from("linguaflow_chat_histories")
-          .select("*")
-          .eq("session_id", USER_ID)
-          .order("id", { ascending: true });
+    const initializeChat = async () => {
+      // Generate or get session ID
+      const newSessionId = `${session.user.id}_${Date.now()}`;
+      setSessionId(newSessionId);
 
-        if (dbError) throw dbError;
+      // Fetch words
+      const { data: wordsData, error: wordsError } = await supabase
+        .from("words")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
 
-        if (data && data.length > 0) {
-          const parsedMessages = data.map((item) => {
+      if (wordsError) {
+        console.error("Error fetching words:", wordsError.message);
+        return;
+      }
+
+      setWords(wordsData || []);
+      setWordsLoaded(true);
+
+      // Load chat history
+      const { data: historyData, error: historyError } = await supabase
+        .from("linguaflow_chat_histories")
+        .select("id, message, session_id")
+        .eq("user_id", session.user.id)
+        .order("id", { ascending: true });
+
+      if (historyError) {
+        console.error("Error loading chat history:", historyError.message);
+      }
+
+      // Parse history messages
+      if (historyData && historyData.length > 0) {
+        const parsedMessages = historyData
+          .map((item) => {
             try {
-              let messageData = item.message;
-              if (typeof messageData === 'string') {
-                messageData = JSON.parse(messageData);
-              }
-              
-              const isHuman = messageData.type === 'human' || messageData.role === 'user';
-              
-              return {
-                id: item.id,
-                role: isHuman ? 'user' : 'assistant',
-                content: messageData.content || '',
-                timestamp: item.created_at || new Date().toISOString()
-              };
-            } catch (e) {
-              return {
-                id: item.id,
-                role: 'user',
-                content: typeof item.message === 'string' ? item.message : JSON.stringify(item.message),
-                timestamp: new Date().toISOString()
-              };
+              return JSON.parse(item.message);
+            } catch {
+              return null;
             }
-          });
-          setMessages(parsedMessages);
-          hasFetched.current = true; // Mark as fetched
+          })
+          .filter(Boolean);
+
+        setMessages(parsedMessages);
+      } else {
+        // Add welcome message if no history
+        if (wordsData && wordsData.length > 0) {
+          setMessages([
+            {
+              role: "assistant",
+              content: `Hello! 👋 I'm your AI vocabulary assistant. I've loaded ${wordsData.length} words from your collection. I can help you:
+                        • Practice and review your vocabulary
+                        • Quiz you on word meanings
+                        • Create example sentences
+                        • Explain word usage and context
+                        • Test your knowledge with translations
+
+                        How would you like to start learning today?`,
+                                    },
+          ]);
+        } else {
+          setMessages([
+            {
+              role: "assistant",
+              content: `Hello! 👋 I'm your AI vocabulary assistant. It looks like you haven't added any words yet. Add some words to your collection first, and then I can help you practice and review them!`,
+            },
+          ]);
         }
-      } catch (err) {
-        console.error("Error loading history:", err);
-        setError("Failed to load chat history");
-      } finally {
-        setIsFetchingHistory(false);
       }
     };
 
-    fetchChatHistory();
-  }, [USER_ID]);
+    initializeChat();
+  }, [session]);
 
-  const saveMessageToDatabase = async (role, content) => {
-    if (!USER_ID) return null;
-    try {
-      const messageData = {
-        type: role === 'user' ? 'human' : 'ai',
-        content: content,
-        additional_kwargs: {},
-        response_metadata: {}
-      };
+  // Save message to database
+  const saveMessageToDb = async (message) => {
+    if (!sessionId) return;
 
-      const { data, error } = await supabase.from("linguaflow_chat_histories").insert([
-        { session_id: USER_ID, message: messageData }
-      ]).select();
-      
-      return data?.[0]?.id; 
-    } catch (err) {
-      console.error("Failed to save message:", err);
-      return null;
+    const { error } = await supabase.from("linguaflow_chat_histories").insert([
+      {
+        user_id: session.user.id,
+        session_id: sessionId,
+        message: JSON.stringify(message),
+      },
+    ]);
+
+    if (error) {
+      console.error("Error saving message:", error.message);
     }
-  };
-
-  const speak = (text) => {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    window.speechSynthesis.speak(utterance);
   };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!inputMessage.trim() || isLoading) return;
+    if (!input.trim() || isLoading) return;
 
-    const userContent = inputMessage.trim();
-    setInputMessage("");
-    setError(null);
+    const userMessage = { role: "user", content: input.trim() };
+    setInput("");
+    setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
-    // 1. Add user message to local UI first (Optimistic)
-    const tempId = Date.now();
-    const userMsg = {
-      id: tempId,
-      role: "user",
-      content: userContent,
-      timestamp: new Date().toISOString()
-    };
-    setMessages((prev) => [...prev, userMsg]);
+    // Save user message
+    await saveMessageToDb(userMessage);
 
     try {
-      // 2. Save User Message to DB
-      await saveMessageToDatabase("user", userContent);
+      const vocabularyContext = words
+        .map((word) => `${word.english}: ${word.arabic}`)
+        .join("\n");
 
-      // 3. Get AI Response
-      const response = await fetch("https://n8n.linguaflo.me/webhook-test/linguaflow", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userContent,
-          session_id: USER_ID,
-          user_id: USER_ID,
-          timestamp: new Date().toISOString()
-        }),
-      });
+      const systemPrompt = `You are an AI English teacher helping a student practice their vocabulary. The student has a vocabulary list with ${words.length} words (English-Arabic translations).
+                            Here is their vocabulary list:
+                            ${vocabularyContext}
+                            Your role:
+                            - Help them practice and memorize these specific words
+                            - Quiz them on meanings and translations
+                            - Create example sentences using their words
+                            - Explain usage, context, and nuances
+                            - Be encouraging and supportive
+                            - Focus ONLY on the words in their list
+                            - Keep responses concise and educational
+                            - Use emojis occasionally to make learning fun
 
-      if (!response.ok) throw new Error("Connection lost.");
+                            Always reference the words from their vocabulary list in your responses.`;
+
+      const response = await fetch(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+            "HTTP-Referer": window.location.origin,
+            "X-Title": "LinguaFlow - AI English Learning",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "openai/gpt-4o-mini",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...messages.map((msg) => ({
+                role: msg.role,
+                content: msg.content,
+              })),
+              { role: "user", content: userMessage.content },
+            ],
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
 
       const data = await response.json();
-      
-      // Handle the raw string output seen in your screenshot
-      let botContent = "";
-      if (typeof data === 'string') botContent = data;
-      else botContent = data.output || data.response || data.message || JSON.stringify(data);
-
-      // 4. Save Bot Message to DB
-      const dbId = await saveMessageToDatabase("assistant", botContent);
-
-      // 5. Add Bot Message to UI
-      const botMsg = {
-        id: dbId || Date.now() + 1,
+      const assistantMessage = {
         role: "assistant",
-        content: botContent,
-        timestamp: new Date().toISOString()
+        content: data.choices[0].message.content,
       };
-      setMessages((prev) => [...prev, botMsg]);
 
-    } catch (err) {
-      setError("Trouble connecting to AI.");
-      setMessages((prev) => [...prev, {
-        id: "error-" + Date.now(),
+      setMessages((prev) => [...prev, assistantMessage]);
+      await saveMessageToDb(assistantMessage);
+    } catch (error) {
+      console.error("Error calling AI:", error);
+      const errorMessage = {
         role: "assistant",
-        content: "I'm having trouble connecting right now. Please try again.",
-        timestamp: new Date().toISOString(),
-        isError: true
-      }]);
+        content:
+          "Sorry, I encountered an error. Please make sure your API key is configured correctly in your .env file (VITE_OPENROUTER_API_KEY).",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleClearHistory = async () => {
+    if (!confirm("Are you sure you want to clear all chat history?")) return;
+
+    const { error } = await supabase
+      .from("linguaflow_chat_histories")
+      .delete()
+      .eq("user_id", session.user.id);
+
+    if (error) {
+      console.error("Error clearing history:", error);
+      alert("Failed to clear history");
+      return;
+    }
+
+    setMessages([]);
+    window.location.reload();
+  };
+
+  const quickActions = [
+    { label: "Quiz me", prompt: "Quiz me on 5 random words from my list" },
+    {
+      label: "Example sentences",
+      prompt: "Give me example sentences using 3 of my words",
+    },
+    {
+      label: "Test translation",
+      prompt: "Test me on Arabic to English translations",
+    },
+    {
+      label: "Word of the day",
+      prompt: "Pick one word from my list and teach me about it in detail",
+    },
+  ];
+
+  const handleQuickAction = (prompt) => {
+    setInput(prompt);
+  };
+
   return (
-    <div className="flex flex-col h-[calc(100vh-180px)] max-w-4xl mx-auto">
-      {error && (
-        <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-          <p className="text-red-400 text-sm">{error}</p>
-          <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">×</button>
+    <div className="max-w-5xl mx-auto h-full flex flex-col space-y-6">
+      {/* Modern Header */}
+      <div className="pb-6 bg-[#050505]/80 backdrop-blur-md">
+        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 backdrop-blur-xl border border-white/10 rounded-3xl p-6 lg:p-8">
+          {/* Decorative Glows */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl" />
+
+          <div className="relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0">
+                  {/* Icon Glow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl blur-xl opacity-50" />
+                  <div className="relative w-12 h-12 lg:w-16 lg:h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center">
+                    <Bot className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <h1 className="text-xl lg:text-3xl font-bold text-white mb-1">
+                    AI Assistant
+                  </h1>
+                  <p className="text-xs lg:text-sm text-gray-400">
+                    {wordsLoaded
+                      ? `${words.length} words loaded • Ready to help`
+                      : "Loading your vocabulary..."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Clear History Button */}
+              {messages.length > 1 && (
+                <button
+                  onClick={handleClearHistory}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all text-sm font-medium"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Clear History</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      {messages.length > 0 && words.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {quickActions.map((action, index) => (
+            <button
+              key={index}
+              onClick={() => handleQuickAction(action.prompt)}
+              disabled={isLoading}
+              className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {action.label}
+            </button>
+          ))}
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-6 mb-4">
-        {isFetchingHistory ? (
+      {/* Chat Messages */}
+      <div className="flex-1 bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 overflow-y-auto min-h-[500px]">
+        {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <Loader2 className="w-8 h-8 text-sky-400 animate-spin mx-auto mb-2" />
-              <p className="text-gray-400">Loading chat history...</p>
-            </div>
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center">
-            <div>
-              <Bot className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-400 mb-2">Start a conversation</h3>
-              <p className="text-gray-500">Ask me anything about learning English!</p>
+              <Loader2 className="w-12 h-12 text-gray-600 animate-spin mx-auto mb-4" />
+              <p className="text-gray-400">Loading your vocabulary...</p>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex gap-3 ${
+                  message.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
                 {message.role === "assistant" && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-5 h-5 text-white" />
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-4 h-4 text-white" />
                   </div>
                 )}
-                
-                <div className={`group relative max-w-[70%] rounded-2xl px-4 py-3 ${
-                  message.role === "user"
-                    ? "bg-sky-600 text-white"
-                    : message.isError
-                    ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                    : "bg-white/5 text-gray-200 border border-white/10"
-                }`}>
-                  <div className="text-sm prose prose-invert max-w-none break-words">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-1 gap-2">
-                    <p className="text-[10px] opacity-40">
-                      {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                    {message.role === "assistant" && (
-                      <button 
-                        onClick={() => speak(message.content)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        type="button"
-                      >
-                        <Volume2 className="w-3 h-3 text-sky-400 hover:text-sky-300" />
-                      </button>
-                    )}
-                  </div>
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                    message.role === "user"
+                      ? "bg-gradient-to-br from-emerald-600 to-teal-600 text-white"
+                      : "bg-[#0B0C10]/60 border border-white/10 text-gray-200"
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                    {message.content}
+                  </p>
                 </div>
-
                 {message.role === "user" && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-white" />
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center flex-shrink-0">
+                    <User className="w-4 h-4 text-white" />
                   </div>
                 )}
               </div>
             ))}
-            
             {isLoading && (
               <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-4 h-4 text-white" />
                 </div>
-                <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+                <div className="bg-[#0B0C10]/60 border border-white/10 rounded-2xl px-4 py-3">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" />
+                    <div
+                      className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    />
+                    <div
+                      className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.4s" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -268,23 +372,52 @@ const ChatBot = () => {
         )}
       </div>
 
-      <form onSubmit={handleSendMessage} className="flex gap-2">
-        <input
-          type="text"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          placeholder="Ask me anything about English learning..."
-          disabled={isLoading}
-          className="flex-1 bg-[#1A1D24]/60 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none transition-all disabled:opacity-50"
-        />
-        <button
-          type="submit"
-          disabled={isLoading || !inputMessage.trim()}
-          className="px-6 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white transition-all disabled:opacity-50 flex items-center gap-2"
-        >
-          {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-        </button>
+      {/* Input Area */}
+      <form onSubmit={handleSendMessage} className="relative pb-7">
+        <div className="bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={
+              words.length === 0
+                ? "Add words to your collection first..."
+                : "Ask me anything about your vocabulary..."
+            }
+            disabled={isLoading || words.length === 0}
+            className="w-full bg-transparent border-0 px-6 py-4 text-white placeholder-gray-600 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+          <button
+            type="submit"
+            disabled={!input.trim() || isLoading || words.length === 0}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Send className="w-5 h-5" />
+            )}
+          </button>
+        </div>
       </form>
+
+      {/* Info Banner */}
+      {words.length === 0 && wordsLoaded && (
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+          <div className="flex items-start gap-3">
+            <BookOpen className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-emerald-400 font-medium">
+                No words yet
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Add some words to your collection first, then come back here to
+                practice with AI!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
