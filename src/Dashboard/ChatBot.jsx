@@ -247,7 +247,7 @@ const ChatBot = () => {
   return (
     <div className="max-w-5xl mx-auto h-full flex flex-col space-y-6">
       {/* Modern Header */}
-      <div className="pb-6 bg-[#050505]/80 backdrop-blur-md">
+      <div className="pb-1 bg-[#050505]/80 backdrop-blur-md">
         <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 backdrop-blur-xl border border-white/10 rounded-3xl p-6 lg:p-8">
           {/* Decorative Glows */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl" />
@@ -303,6 +303,24 @@ const ChatBot = () => {
               {action.label}
             </button>
           ))}
+        </div>
+      )}
+      
+      {/* Info Banner */}
+      {words.length === 0 && wordsLoaded && (
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+          <div className="flex items-start gap-3">
+            <BookOpen className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-emerald-400 font-medium">
+                No words yet
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Add some words to your collection first, then come back here to
+                practice with me!
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -401,23 +419,6 @@ const ChatBot = () => {
         </div>
       </form>
 
-      {/* Info Banner */}
-      {words.length === 0 && wordsLoaded && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-          <div className="flex items-start gap-3">
-            <BookOpen className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm text-emerald-400 font-medium">
-                No words yet
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Add some words to your collection first, then come back here to
-                practice with AI!
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
