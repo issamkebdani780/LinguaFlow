@@ -289,22 +289,6 @@ const ChatBot = () => {
           </div>
         </div>
       </div>
-
-      {/* Quick Actions */}
-      {messages.length > 0 && words.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {quickActions.map((action, index) => (
-            <button
-              key={index}
-              onClick={() => handleQuickAction(action.prompt)}
-              disabled={isLoading}
-              className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      )}
       
       {/* Info Banner */}
       {words.length === 0 && wordsLoaded && (
@@ -389,6 +373,22 @@ const ChatBot = () => {
           </div>
         )}
       </div>
+
+      {/* Quick Actions */}
+      {messages.length > 0 && words.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {quickActions.map((action, index) => (
+            <button
+              key={index}
+              onClick={() => handleQuickAction(action.prompt)}
+              disabled={isLoading}
+              className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Input Area */}
       <form onSubmit={handleSendMessage} className="relative pb-7">

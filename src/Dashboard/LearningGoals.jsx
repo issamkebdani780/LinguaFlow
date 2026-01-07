@@ -10,8 +10,9 @@ const LearningGoals = ({ session, aiMinutes }) => {
   });
   const [aiChatTime, setAiChatTime] = useState({
     completed: aiMinutes,
-    goal: 10,
+    goal: 60,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Edit Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -22,71 +23,89 @@ const LearningGoals = ({ session, aiMinutes }) => {
     if (!session?.user?.id) return;
 
     const fetchData = async () => {
+      setIsLoading(true);
       const userId = session.user.id;
 
-      const { data: goals, error } = await supabase
-        .from("user_goals")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      
-
-      if (!goals) {
-        // create default goals if not exists
-        const { data: newGoals } = await supabase
+      try {
+        // Fetch user goals
+        const { data: goalsData, error: goalsError } = await supabase
           .from("user_goals")
-          .insert({
-            user_id: userId,
-            daily_word_goal: 10,
-            weekly_revision_goal: 15,
-            ai_chat_time_goal: 60,
-          })
-          .select()
+          .select("*")
+          .eq("user_id", userId)
           .single();
 
-        setDailyWords((p) => ({ ...p, goal: newGoals.daily_word_goal }));
-        setWeeklyRevisions((p) => ({
-          ...p,
-          goal: newGoals.weekly_revision_goal,
-        }));
-        setAiChatTime((p) => ({ ...p, goal: newGoals.ai_chat_time_goal }));
-      } else {
-        setDailyWords((p) => ({ ...p, goal: goals.daily_word_goal }));
-        setWeeklyRevisions((p) => ({ ...p, goal: goals.weekly_revision_goal }));
-        setAiChatTime((p) => ({ ...p, goal: goals.ai_chat_time_goal }));
+        if (goalsError && goalsError.code !== 'PGRST116') {
+          console.error("Error fetching goals:", goalsError);
+          setIsLoading(false);
+          return;
+        }
+
+        if (!goalsData) {
+          // No goals found, create default goals
+          const { data: newGoals, error: insertError } = await supabase
+            .from("user_goals")
+            .insert({
+              user_id: userId,
+              daily_word_goal: 10,
+              weekly_revision_goal: 15,
+              ai_chat_time_goal: 60,
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error("Error creating default goals:", insertError);
+            setIsLoading(false);
+            return;
+          }
+
+          setDailyWords((p) => ({ ...p, goal: newGoals.daily_word_goal }));
+          setWeeklyRevisions((p) => ({
+            ...p,
+            goal: newGoals.weekly_revision_goal,
+          }));
+          setAiChatTime((p) => ({ ...p, goal: newGoals.ai_chat_time_goal }));
+        } else {
+          // Goals found, update state
+          setDailyWords((p) => ({ ...p, goal: goalsData.daily_word_goal }));
+          setWeeklyRevisions((p) => ({
+            ...p,
+            goal: goalsData.weekly_revision_goal,
+          }));
+          setAiChatTime((p) => ({ ...p, goal: goalsData.ai_chat_time_goal }));
+        }
+
+        // Fetch today's words count
+        const today = new Date();
+        const startOfToday = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        );
+
+        const { data: wordsData, error: wordsError } = await supabase
+          .from("words")
+          .select("id")
+          .eq("user_id", userId)
+          .gte("created_at", startOfToday.toISOString());
+
+        if (wordsError) {
+          console.error("Error fetching words:", wordsError);
+        } else {
+          setDailyWords((p) => ({ ...p, completed: wordsData?.length || 0 }));
+        }
+
+        // Set weekly revisions to 0 (no revisions table yet)
+        setWeeklyRevisions((p) => ({ ...p, completed: 0 }));
+
+        // Update AI chat time
+        setAiChatTime((p) => ({ ...p, completed: aiMinutes }));
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Unexpected error in fetchData:", error);
+        setIsLoading(false);
       }
-
-      const today = new Date();
-      const startOfToday = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate()
-      );
-
-      const { data: wordsData } = await supabase
-        .from("words")
-        .select("created_at")
-        .eq("user_id", userId)
-        .gte("created_at", startOfToday.toISOString());
-
-      setDailyWords((p) => ({ ...p, completed: wordsData?.length || 0 }));
-
-      const startOfWeek = new Date();
-      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-
-      const { data: revisionData } = await supabase
-        .from("revisions")
-        .select("created_at")
-        .eq("user_id", userId)
-        .gte("created_at", startOfWeek.toISOString());
-
-      setWeeklyRevisions((p) => ({
-        ...p,
-        completed: revisionData?.length || 0,
-      }));
-
-      setAiChatTime((p) => ({ ...p, completed: aiMinutes }));
     };
 
     fetchData();
@@ -94,7 +113,7 @@ const LearningGoals = ({ session, aiMinutes }) => {
 
   const calcPercentage = (completed, goal) => {
     if (goal === 0) return 0;
-    return Math.round((completed / goal) * 100);
+    return Math.min(Math.round((completed / goal) * 100), 100);
   };
 
   // Open edit modal
@@ -111,38 +130,49 @@ const LearningGoals = ({ session, aiMinutes }) => {
       return;
     }
 
-    const userId = session.user.id;
+    if (!session?.user?.id) {
+      alert("User session not found");
+      return;
+    }
 
+    const userId = session.user.id;
     let updateData = {};
 
     if (editingGoal === "daily") {
       updateData.daily_word_goal = tempGoalValue;
-      setDailyWords((p) => ({ ...p, goal: tempGoalValue }));
-    }
-
-    if (editingGoal === "weekly") {
+    } else if (editingGoal === "weekly") {
       updateData.weekly_revision_goal = tempGoalValue;
-      setWeeklyRevisions((p) => ({ ...p, goal: tempGoalValue }));
-    }
-
-    if (editingGoal === "chat") {
+    } else if (editingGoal === "chat") {
       updateData.ai_chat_time_goal = tempGoalValue;
-      setAiChatTime((p) => ({ ...p, goal: tempGoalValue }));
     }
 
-    const { error } = await supabase
-      .from("user_goals")
-      .update(updateData)
-      .eq("user_id", userId);
+    try {
+      const { error } = await supabase
+        .from("user_goals")
+        .update(updateData)
+        .eq("user_id", userId);
 
-    if (error) {
-      console.error(error);
-      alert("Failed to update goal");
-      return;
+      if (error) {
+        console.error("Error updating goal:", error);
+        alert("Failed to update goal. Please try again.");
+        return;
+      }
+
+      // Update local state after successful database update
+      if (editingGoal === "daily") {
+        setDailyWords((p) => ({ ...p, goal: tempGoalValue }));
+      } else if (editingGoal === "weekly") {
+        setWeeklyRevisions((p) => ({ ...p, goal: tempGoalValue }));
+      } else if (editingGoal === "chat") {
+        setAiChatTime((p) => ({ ...p, goal: tempGoalValue }));
+      }
+
+      setIsEditModalOpen(false);
+      setEditingGoal(null);
+    } catch (error) {
+      console.error("Unexpected error updating goal:", error);
+      alert("An unexpected error occurred. Please try again.");
     }
-
-    setIsEditModalOpen(false);
-    setEditingGoal(null);
   };
 
   const getGoalTitle = () => {
@@ -162,11 +192,29 @@ const LearningGoals = ({ session, aiMinutes }) => {
     return goal > 0 && completed >= goal;
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6">
+        <h3 className="text-lg font-bold text-white mb-1">🎯 Learning Goals</h3>
+        <p className="text-sm text-gray-400 mb-6">Loading your progress...</p>
+        <div className="space-y-5">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse">
+              <div className="h-4 bg-white/5 rounded w-1/3 mb-2"></div>
+              <div className="h-3 bg-white/5 rounded-full w-full"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-2xl p-6">
         <h3 className="text-lg font-bold text-white mb-1">🎯 Learning Goals</h3>
         <p className="text-sm text-gray-400 mb-6">Track your daily progress</p>
+        
         {/* 🎉 Congratulations Messages */}
         <div className="space-y-3 mb-6">
           {isGoalCompleted(dailyWords.completed, dailyWords.goal) && (
@@ -199,6 +247,7 @@ const LearningGoals = ({ session, aiMinutes }) => {
                 <button
                   onClick={() => handleOpenEdit("daily", dailyWords.goal)}
                   className="text-gray-400 hover:text-sky-400 transition-colors"
+                  aria-label="Edit daily words goal"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -232,6 +281,7 @@ const LearningGoals = ({ session, aiMinutes }) => {
                 <button
                   onClick={() => handleOpenEdit("weekly", weeklyRevisions.goal)}
                   className="text-gray-400 hover:text-purple-400 transition-colors"
+                  aria-label="Edit weekly revisions goal"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -265,6 +315,7 @@ const LearningGoals = ({ session, aiMinutes }) => {
                 <button
                   onClick={() => handleOpenEdit("chat", aiChatTime.goal)}
                   className="text-gray-400 hover:text-green-400 transition-colors"
+                  aria-label="Edit AI chat time goal"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -298,6 +349,7 @@ const LearningGoals = ({ session, aiMinutes }) => {
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+              aria-label="Close modal"
             >
               <X className="w-6 h-6" />
             </button>
