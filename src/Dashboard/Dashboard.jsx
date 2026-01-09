@@ -1,3 +1,4 @@
+// src/components/Dashboard.jsx
 import { useEffect, useState } from "react";
 import { UserAuth } from "../Authcontex";
 import { supabase } from "../SupabaseClient";
@@ -10,6 +11,7 @@ import {
   User,
   Settings,
   BarChart3,
+  RefreshCw,
 } from "lucide-react";
 
 import AddWord from "./AddWord";
@@ -17,13 +19,14 @@ import MyWords from "./MyWords";
 import ChatBot from "./ChatBot";
 import Statics from "./Statics";
 import Setings from "./Setings";
+import Revision from "./Revision";
 
 const Dashboard = () => {
   const { session, signOut } = UserAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("add-word");
   const [words, setWords] = useState([]);
-  
+
   useEffect(() => {
     if (!session?.user) return;
 
@@ -125,6 +128,18 @@ const Dashboard = () => {
             </button>
 
             <button
+              onClick={() => setActiveTab("revision")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                activeTab === "revision"
+                  ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/20"
+                  : "text-gray-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <RefreshCw className="w-5 h-5" />
+              <span className="font-medium">Revision</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("stats")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                 activeTab === "stats"
@@ -192,6 +207,7 @@ const Dashboard = () => {
             <MyWords words={words} onWordsUpdate={handleWordsUpdate} />
           )}
           {activeTab === "chatbot" && <ChatBot />}
+          {activeTab === "revision" && <Revision />}
           {activeTab === "stats" && <Statics words={words} />}
           {activeTab === "settings" && <Setings />}
         </main>
