@@ -10,6 +10,7 @@ import {
   Award,
   Target,
   Clock,
+  RefreshCw,
 } from "lucide-react";
 import { UserAuth } from "../Authcontex";
 import SelfComparison from "./SelfComparison";
@@ -18,6 +19,13 @@ import Achievements from "./Achievements";
 
 const Statics = ({ words }) => {
   const { session } = UserAuth();
+  const [chatMessages, setChatMessages] = useState([]);
+  const [revisionStats, setRevisionStats] = useState({
+    totalSessions: 0,
+    totalTime: 0,
+    averageAccuracy: 0,
+    totalQuestions: 0,
+  });
 
   // Streak calculation function
   const calculateStreak = (words) => {
@@ -127,7 +135,7 @@ const Statics = ({ words }) => {
       return { day: dayName, value: count };
     });
 
-  // Time spent
+  // Time spent - AI Chat
   const calculateAiChatTime = (messages) => {
     if (!messages || messages.length === 0) return 0;
 
@@ -151,8 +159,7 @@ const Statics = ({ words }) => {
     return Number(minutes.toFixed(1));
   };
 
-  const [chatMessages, setChatMessages] = useState([]);
-
+  // Fetch chat messages
   useEffect(() => {
     const fetchChatMessages = async () => {
       const { data, error } = await supabase
@@ -169,6 +176,50 @@ const Statics = ({ words }) => {
     };
 
     fetchChatMessages();
+  }, [session.user.id]);
+
+  // Fetch revision statistics
+  useEffect(() => {
+    const fetchRevisionStats = async () => {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data, error } = await supabase
+        .from("revisions")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .eq("completed", true)
+        .gte("created_at", sevenDaysAgo.toISOString());
+
+      if (error) {
+        console.error("Error fetching revision stats:", error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const totalSessions = data.length;
+        const totalTime = data.reduce(
+          (sum, session) => sum + (session.duration_seconds || 0),
+          0
+        );
+        const totalQuestions = data.reduce(
+          (sum, session) => sum + session.total_questions,
+          0
+        );
+        const avgAccuracy =
+          data.reduce((sum, session) => sum + session.accuracy, 0) /
+          totalSessions;
+
+        setRevisionStats({
+          totalSessions,
+          totalTime: Math.round(totalTime / 60), // Convert to minutes
+          averageAccuracy: Math.round(avgAccuracy),
+          totalQuestions,
+        });
+      }
+    };
+
+    fetchRevisionStats();
   }, [session.user.id]);
 
   const aiMinutes = calculateAiChatTime(chatMessages);
@@ -195,7 +246,7 @@ const Statics = ({ words }) => {
       <div className="relative overflow-hidden bg-gradient-to-br from-pink-500/20 via-rose-500/20 to-orange-500/20 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
         <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl" />
-        
+
         <div className="relative z-10">
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -205,8 +256,12 @@ const Statics = ({ words }) => {
               </div>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white mb-1">Learning Statistics</h1>
-              <p className="text-gray-400">Track your progress and achievements</p>
+              <h1 className="text-3xl font-bold text-white mb-1">
+                Learning Statistics
+              </h1>
+              <p className="text-gray-400">
+                Track your progress and achievements
+              </p>
             </div>
           </div>
         </div>
@@ -217,7 +272,7 @@ const Statics = ({ words }) => {
         {/* Total Words */}
         <div className="group relative overflow-hidden bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 hover:border-sky-400/40 rounded-2xl p-6 transition-all duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 rounded-full blur-2xl group-hover:bg-sky-500/10 transition-all" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-gray-400 text-sm font-medium">Total Words</h3>
@@ -236,7 +291,7 @@ const Statics = ({ words }) => {
         {/* This Week */}
         <div className="group relative overflow-hidden bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 hover:border-green-400/40 rounded-2xl p-6 transition-all duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full blur-2xl group-hover:bg-green-500/10 transition-all" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-gray-400 text-sm font-medium">This Week</h3>
@@ -255,7 +310,7 @@ const Statics = ({ words }) => {
         {/* This Month */}
         <div className="group relative overflow-hidden bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 hover:border-purple-400/40 rounded-2xl p-6 transition-all duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-gray-400 text-sm font-medium">This Month</h3>
@@ -274,10 +329,12 @@ const Statics = ({ words }) => {
         {/* Learning Streak */}
         <div className="group relative overflow-hidden bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 hover:border-orange-400/40 rounded-2xl p-6 transition-all duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/10 transition-all" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-gray-400 text-sm font-medium">Current Streak</h3>
+              <h3 className="text-gray-400 text-sm font-medium">
+                Current Streak
+              </h3>
               <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
                 <span className="text-2xl">🔥</span>
               </div>
@@ -295,15 +352,19 @@ const Statics = ({ words }) => {
         {/* Learning Activity Chart */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
           <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 rounded-full blur-2xl" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center">
                 <BarChart3 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Learning Activity</h3>
-                <p className="text-sm text-gray-400">Words added per day (Last 7 days)</p>
+                <h3 className="text-lg font-bold text-white">
+                  Learning Activity
+                </h3>
+                <p className="text-sm text-gray-400">
+                  Words added per day (Last 7 days)
+                </p>
               </div>
             </div>
 
@@ -314,7 +375,9 @@ const Statics = ({ words }) => {
 
                 return (
                   <div key={day} className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-gray-400 w-10">{day}</span>
+                    <span className="text-sm font-medium text-gray-400 w-10">
+                      {day}
+                    </span>
                     <div className="flex-1 bg-[#0B0C10]/60 rounded-full h-10 overflow-hidden border border-white/5">
                       <div
                         className="h-full bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-500 flex items-center justify-end pr-3 transition-all duration-700 ease-out"
@@ -337,14 +400,16 @@ const Statics = ({ words }) => {
         {/* Time & Consistency Metrics */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center">
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Time Spent Learning</h3>
+                <h3 className="text-lg font-bold text-white">
+                  Time Spent Learning
+                </h3>
                 <p className="text-sm text-gray-400">This week</p>
               </div>
             </div>
@@ -357,8 +422,12 @@ const Statics = ({ words }) => {
                       <Bot className="w-6 h-6 text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">AI Chat</p>
-                      <p className="text-xs text-gray-400">Interactive learning</p>
+                      <p className="text-sm font-semibold text-white">
+                        AI Chat
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Interactive learning
+                      </p>
                     </div>
                   </div>
                   <p className="text-3xl font-bold text-white">
@@ -368,18 +437,28 @@ const Statics = ({ words }) => {
                 </div>
               </div>
 
-              <div className="relative overflow-hidden group p-4 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl hover:border-purple-400/40 transition-all">
+              <div className="relative overflow-hidden group p-4 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 border border-violet-500/20 rounded-2xl hover:border-violet-400/40 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                      <BookOpen className="w-6 h-6 text-purple-400" />
+                    <div className="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                      <RefreshCw className="w-6 h-6 text-violet-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">Revision</p>
-                      <p className="text-xs text-gray-400">Review & practice</p>
+                      <p className="text-sm font-semibold text-white">
+                        Revision
+                      </p>
+                      <p className="text-xs text-gray-400">Practice sessions</p>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-400 italic">Coming soon</p>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-white">
+                      {revisionStats.totalSessions}
+                      <span className="text-sm text-gray-400 ml-1">x</span>
+                    </p>
+                    <p className="text-xs text-violet-400">
+                      {revisionStats.averageAccuracy}% accuracy
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -387,14 +466,26 @@ const Statics = ({ words }) => {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">🔥</span>
-                    <p className="text-sm font-semibold text-white">Current Streak</p>
+                    <p className="text-sm font-semibold text-white">
+                      Current Streak
+                    </p>
                   </div>
                   <p className="text-3xl font-bold text-orange-400">{streak}</p>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-400">Longest: <span className="text-orange-400 font-semibold">{longestStreak}</span> days</span>
                   <span className="text-gray-400">
-                    Missed: <span className="text-red-400 font-semibold">{longestStreak - streak}</span> days
+                    Longest:{" "}
+                    <span className="text-orange-400 font-semibold">
+                      {longestStreak}
+                    </span>{" "}
+                    days
+                  </span>
+                  <span className="text-gray-400">
+                    Missed:{" "}
+                    <span className="text-red-400 font-semibold">
+                      {longestStreak - streak}
+                    </span>{" "}
+                    days
                   </span>
                 </div>
               </div>
@@ -402,6 +493,58 @@ const Statics = ({ words }) => {
           </div>
         </div>
       </div>
+
+      {/* Revision Details Card */}
+      {revisionStats.totalSessions > 0 && (
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#1A1D24]/80 to-[#0B0C10]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 rounded-full blur-2xl" />
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-400 to-fuchsia-600 flex items-center justify-center">
+                <Award className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">
+                  Revision Performance
+                </h3>
+                <p className="text-sm text-gray-400">Last 7 days</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 bg-violet-500/10 border border-violet-500/20 rounded-xl text-center">
+                <RefreshCw className="w-6 h-6 text-violet-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">
+                  {revisionStats.totalSessions}
+                </p>
+                <p className="text-xs text-gray-400">Sessions</p>
+              </div>
+              <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl text-center">
+                <Target className="w-6 h-6 text-purple-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">
+                  {revisionStats.totalQuestions}
+                </p>
+                <p className="text-xs text-gray-400">Questions</p>
+              </div>
+              <div className="p-4 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-xl text-center">
+                <Award className="w-6 h-6 text-fuchsia-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">
+                  {revisionStats.averageAccuracy}%
+                </p>
+                <p className="text-xs text-gray-400">Avg Accuracy</p>
+              </div>
+              <div className="p-4 bg-pink-500/10 border border-pink-500/20 rounded-xl text-center">
+                <Clock className="w-6 h-6 text-pink-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">
+                  {revisionStats.totalTime}
+                </p>
+                <p className="text-xs text-gray-400">Minutes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Learning Goals & Comparison */}
       <div className="grid lg:grid-cols-2 gap-6">
