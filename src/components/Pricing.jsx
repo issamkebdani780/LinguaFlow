@@ -1,8 +1,18 @@
-// src/components/Pricing.jsx
-import React from "react";
+import { UserAuth } from '../Authcontex';
+import { useNavigate } from 'react-router-dom';
 import { Check, Zap, Code, Workflow, Calendar } from "lucide-react";
 
 const Pricing = () => {
+   const {session} = UserAuth();
+    const navigate = useNavigate();
+  
+    const handleStart = () => {
+      if (session) {
+        navigate("/Dashboard");
+      } else {
+        navigate("/signup");
+      }
+    };
   const plans = [ 
     {
       name: "Custom Website",
@@ -166,7 +176,7 @@ const Pricing = () => {
 
                 {/* CTA Button */}
                 <button
-                  onClick={() => handleButtonClick(plan)}
+                  onClick={handleStart}
                   className={`w-full py-3 rounded-xl font-bold transition-all mb-8 flex items-center justify-center gap-2 ${plan.buttonStyle}`}
                 >
                   {plan.isExternal && <Calendar className="w-5 h-5" />}
