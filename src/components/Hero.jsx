@@ -1,5 +1,4 @@
 import { Zap, PlayCircle, Bot, Mic, CheckCircle } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
 import { UserAuth } from '../Authcontex';
 import { useNavigate } from 'react-router-dom';
 const Hero = () => {

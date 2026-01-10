@@ -1,10 +1,22 @@
 // src/components/Footer.jsx
-import React from "react";
+import { UserAuth } from '../Authcontex';
 import { Bot, Mail, Send, Linkedin, Github, Calendar } from "lucide-react";
 import { FaTiktok } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Footer = ({ openModal }) => {
   const currentYear = new Date().getFullYear();
+
+  const { session } = UserAuth();
+  const navigate = useNavigate();
+
+  const handleStart = () => {
+    if (session) {
+      navigate("/Dashboard");
+    } else {
+      navigate("/signup");
+    }
+  };
 
   const footerLinks = {
     product: [
@@ -16,7 +28,7 @@ const Footer = ({ openModal }) => {
     resources: [
       {
         name: "Contact",
-        href: "https://calendar.app.google/DXqcUgrdKCb5AuAJ9",
+        href: "https://wa.me/213781243966",
         external: true,
       },
       {
@@ -55,37 +67,6 @@ const Footer = ({ openModal }) => {
       {/* Background glow effects */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(56,189,248,0.05)_0%,rgba(0,0,0,0)_70%)] rounded-full pointer-events-none -z-10"></div>
       <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(168,85,247,0.05)_0%,rgba(0,0,0,0)_70%)] rounded-full pointer-events-none -z-10"></div>
-
-      {/* Newsletter Section */}
-      <div className="border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                Stay Updated
-              </h3>
-              <p className="text-gray-400">
-                Get the latest features, tips, and learning strategies delivered
-                to your inbox.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1 relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full bg-[#111318] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition-all"
-                />
-              </div>
-              <button className="px-6 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_-10px_rgba(14,165,233,0.5)] whitespace-nowrap">
-                <Send className="w-4 h-4" />
-                Subscribe
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -180,8 +161,8 @@ const Footer = ({ openModal }) => {
 
             {/* CTA Button */}
             <button
-              onClick={() => openModal("signup")}
-              className="px-6 py-2.5 rounded-full bg-white text-[#0B0C10] font-semibold text-sm hover:bg-gray-100 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+              onClick={handleStart}
+              className="px-6 py-2.5 rounded-full bg-white text-[#0B0C10] font-semibold text-sm hover:bg-gray-100 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer"
             >
               Start Learning Free
             </button>
@@ -203,21 +184,14 @@ const Footer = ({ openModal }) => {
               </a>
             </p>
             <div className="flex items-center gap-6">
-              <a
-                href="#privacy"
-                className="hover:text-sky-400 transition-colors"
-              >
-                Privacy
-              </a>
-              <a href="#terms" className="hover:text-sky-400 transition-colors">
-                Terms
-              </a>
               <div className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                <span className="text-green-400">All systems operational</span>
+                <span className="text-green-400">
+                  Let's build something together
+                </span>
               </div>
             </div>
           </div>
