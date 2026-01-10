@@ -54,10 +54,11 @@ const Features = () => (
 
         <div className="md:col-span-3 bg-gradient-to-b from-[#1A1D24]/60 to-[#111318]/80 backdrop-blur-md border border-white/10 rounded-3xl p-8 flex flex-col md:flex-row items-center gap-8 hover:border-sky-400/30 hover:-translate-y-1 transition-all">
           <div className="flex-1">
-            <h3 className="text-2xl font-bold mb-3">Tailored for You</h3>
+            <h3 className="text-2xl font-bold mb-3">Built for Your Growth</h3>
             <p className="text-gray-400">
-              The AI adapts examples to your region and career, whether you are
-              an Arabic speaker in Algeria or a global professional.
+              Learn at your own pace with examples that match your goals,
+              mindset, and ambitions. Every lesson is designed to push you
+              forward and help you become more confident every day.
             </p>
           </div>
           <div className="flex gap-4 items-center">
