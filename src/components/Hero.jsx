@@ -26,24 +26,24 @@ const Hero = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                <span className="text-xs font-medium text-sky-400 uppercase tracking-wide">AI-Powered Automation V1.0</span>
+                <span className="text-xs font-medium text-sky-400 uppercase tracking-wide">build better future with English</span>
               </div>
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight mb-6">
                 Your Personal AI <br />
                 <span className="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">English Coach.</span>
               </h1>
               <p className="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
-                Stop memorizing lists. Start automating your fluency. Send words to Telegram, and our AI builds your personalized curriculum instantly.
+                Stop memorizing lists. Start automating your fluency. Send words to LinguaFlow, and our AI builds your personalized curriculum instantly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={handleStart} className="px-8 py-4 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_0_40px_-10px_rgba(14,165,233,0.5)]">
+                <button onClick={handleStart} className="px-8 py-4 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-[0_0_40px_-10px_rgba(14,165,233,0.5)] cursor-crosshair cursor-pointer">
                   <Zap className="w-5 h-5" />
                   Start Learning Free
                 </button>
-                <button className="px-8 py-4 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 text-white font-semibold transition-all flex items-center justify-center gap-2">
+                {/* <button className="px-8 py-4 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 text-white font-semibold transition-all flex items-center justify-center gap-2">
                   <PlayCircle className="w-5 h-5" />
                   Watch Demo
-                </button>
+                </button> */}
               </div>
             </div>
 
@@ -61,12 +61,11 @@ const Hero = () => {
                 </div>
                 <div className="p-4 space-y-4 h-full flex flex-col text-sm">
                   <div className="self-end bg-sky-600 text-white px-4 py-2 rounded-2xl rounded-tr-sm max-w-[80%] shadow-lg">
-                    What does "Serendipity" mean?
+                    Quiz me on 5 random words from my list
                   </div>
                   <div className="self-start bg-[#1A1D24] text-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%] border border-white/5 shadow-lg">
-                    <p className="font-semibold text-sky-400 mb-1">Serendipity (n.)</p>
-                    <p className="text-xs mb-2">/ˌser.ənˈdɪp.ə.ti/</p>
-                    <p className="mb-2">The occurrence of events by chance in a happy or beneficial way.</p>
+                    <p className="font-semibold text-sky-400 mb-1">Sure! Let’s do this! 😊</p>
+                    <p className="mb-2"> Here are five new random words from your list...</p>
                   </div>
                   <div className="self-start bg-[#1A1D24] text-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%] border border-white/5 shadow-lg">
                     <p className="flex items-center gap-2 font-semibold text-green-400 mb-1">
@@ -74,7 +73,7 @@ const Hero = () => {
                     </p>
                   </div>
                   <div className="self-end bg-sky-600 text-white px-4 py-2 rounded-2xl rounded-tr-sm max-w-[80%] shadow-lg mt-4 animate-pulse">
-                    <Mic className="w-4 h-4 inline mr-1" /> Audio sent...
+                    message sent...
                   </div>
                 </div>
               </div>

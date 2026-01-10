@@ -15,7 +15,7 @@ const HowItWorks = () => (
                 <Send className="w-10 h-10 text-sky-400" />
               </div>
               <h3 className="text-xl font-bold mb-2">1. Send a Word</h3>
-              <p className="text-sm text-gray-400 px-4">Encounter a new word? Just type it or send a voice note to the Telegram bot.</p>
+              <p className="text-sm text-gray-400 px-4">Encounter a new word? Just send it to LinguaFlow.</p>
             </div>
             
             <div className="relative z-10 text-center group">
@@ -23,7 +23,7 @@ const HowItWorks = () => (
                 <Cpu className="w-10 h-10 text-purple-400" />
               </div>
               <h3 className="text-xl font-bold mb-2">2. AI Analysis</h3>
-              <p className="text-sm text-gray-400 px-4">Our engine defines it, finds examples, generates audio, and categorizes it.</p>
+              <p className="text-sm text-gray-400 px-4">Our engine defines it, finds examples, and categorizes it.</p>
             </div>
             
             <div className="relative z-10 text-center group">

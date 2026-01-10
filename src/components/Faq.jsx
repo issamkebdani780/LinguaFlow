@@ -7,37 +7,41 @@ const FAQ = () => {
 
   const faqs = [
     {
-      question: "How does LinguaFlow AI work?",
-      answer: "Simply send any English word or phrase to our Telegram bot. Our AI instantly provides definitions, pronunciation, examples, and saves it to your personalized deck. The system then schedules reviews using spaced repetition to ensure long-term retention."
+      question: "How does LinguaFlow work?",
+      answer: "LinguaFlow is a web-based vocabulary learning platform. Create an account, add English words with Arabic translations, practice with our AI chat assistant, and test your knowledge with revision exercises. All your progress is automatically saved and synced across devices."
     },
     {
       question: "Do I need to download an app?",
-      answer: "No! LinguaFlow works entirely through Telegram, which you probably already have. Just start a chat with our bot and you're ready to learn. No additional apps, logins, or complex setups required."
+      answer: "No! LinguaFlow works entirely in your web browser on any device. Just visit the website, create a free account, and start learning. You can access it from your phone, tablet, or computer - no downloads or installations required."
     },
     {
       question: "What makes LinguaFlow different from other learning apps?",
-      answer: "Unlike traditional apps with pre-made content, LinguaFlow builds YOUR curriculum based on words YOU encounter. Our AI adapts examples to your region, career, and learning style. Plus, it's completely automated - no manual flashcard creation needed."
+      answer: "LinguaFlow lets YOU build your own vocabulary list with words you actually need to learn. Our AI chat assistant knows your specific vocabulary and creates personalized quizzes and examples. Plus, our revision system uses multiple question types (multiple choice, translation, writing) to reinforce learning from different angles."
     },
     {
-      question: "Can I use voice messages?",
-      answer: "Absolutely! Send voice notes to practice pronunciation and our AI will analyze your speech, provide instant feedback, and help you improve. It's like having a personal pronunciation coach available 24/7."
+      question: "How does the AI chat assistant work?",
+      answer: "The AI assistant has access to all your saved words and creates personalized learning experiences. Ask for quizzes, request example sentences, practice translations, or get explanations - all focused on YOUR vocabulary. It's like having a personal tutor available 24/7."
     },
     {
-      question: "How does the spaced repetition work?",
-      answer: "We use the scientifically-proven Ebbinghaus Forgetting Curve algorithm. The AI tracks your performance on each word and schedules reviews at optimal intervals - right before you're about to forget. This maximizes retention with minimal effort."
+      question: "What is the revision practice feature?",
+      answer: "You'll get 10 random questions from your vocabulary in different formats: multiple choice (select correct translation), translation (Arabic to English), and writing exercises. After each session, you get a score, accuracy percentage, and detailed statistics."
     },
     {
-      question: "Is there a free plan?",
-      answer: "Yes! Our free plan includes 50 words per month, basic AI definitions, and spaced repetition reviews. Perfect for casual learners. Upgrade anytime for unlimited words, voice analysis, and advanced features."
+      question: "Is LinguaFlow really free?",
+      answer: "Yes! LinguaFlow is 100% free with no word limits, no feature restrictions, and no credit card required. You get unlimited vocabulary storage, full AI chat access, unlimited revision practice, complete progress tracking, and all features forever."
     },
     {
       question: "What languages does LinguaFlow support?",
-      answer: "Currently, we focus on English learning with support for Arabic, French, and Spanish speakers. Our AI provides translations and examples tailored to your native language and cultural context."
+      answer: "Currently, LinguaFlow focuses on English vocabulary learning with Arabic translations. This makes it perfect for Arabic speakers learning English or English speakers learning Arabic vocabulary. We're planning to add more language pairs in the future."
     },
     {
-      question: "Can I export my vocabulary list?",
-      answer: "Yes! You can export your entire vocabulary database anytime in CSV, PDF, or Anki-compatible formats. Your learning data is always yours to keep and use however you like."
-    }
+      question: "How is my progress tracked?",
+      answer: "LinguaFlow provides comprehensive statistics including: total words learned, words added this week/month, learning streaks, AI chat time, revision session scores, accuracy percentages, and detailed performance analytics. Set daily goals and track your improvement over time."
+    },
+    {
+      question: "Can I use LinguaFlow offline?",
+      answer: "LinguaFlow requires an internet connection to sync your data and use the AI features. However, once your page is loaded, you can browse your vocabulary list even if your connection is temporarily interrupted. All changes sync automatically when you're back online."
+    },
   ];
 
   const toggleFAQ = (index) => {
@@ -65,8 +69,7 @@ const FAQ = () => {
             </span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Everything you need to know about LinguaFlow AI. Can't find what you're looking for? 
-            <a href="#" className="text-sky-400 hover:text-sky-300 ml-1">Contact our support team</a>.
+            Everything you need to know about LinguaFlow
           </p>
         </div>
 
