@@ -3,17 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Check, Zap, Code, Workflow, Calendar } from "lucide-react";
 
 const Pricing = () => {
-   const {session} = UserAuth();
-    const navigate = useNavigate();
-  
-    const handleStart = () => {
-      if (session) {
-        navigate("/Dashboard");
-      } else {
-        navigate("/signup");
-      }
-    };
-  const plans = [ 
+  const { session } = UserAuth();
+  const navigate = useNavigate();
+
+  const plans = [
     {
       name: "Custom Website",
       icon: Code,
@@ -39,7 +32,7 @@ const Pricing = () => {
       buttonStyle:
         "bg-sky-600 hover:bg-sky-500 text-white border border-sky-500/50",
       popular: false,
-      link: "https://calendar.app.google/DXqcUgrdKCb5AuAJ9",
+      link: "https://calendar.app.google/pTDNtRU2LLRULVPK7",
       isExternal: true,
     },
     {
@@ -65,7 +58,7 @@ const Pricing = () => {
       buttonStyle:
         "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)]",
       popular: true,
-      link: "/signup",
+      isLinguaFlow: true, // Flag to identify LinguaFlow plan
     },
     {
       name: "Automation & Integration",
@@ -91,17 +84,23 @@ const Pricing = () => {
       buttonStyle:
         "bg-purple-600 hover:bg-purple-500 text-white border border-purple-500/50",
       popular: false,
-      link: "https://calendar.app.google/DXqcUgrdKCb5AuAJ9",
+      link: "https://calendar.app.google/pTDNtRU2LLRULVPK7",
       isExternal: true,
     },
   ];
 
   const handleButtonClick = (plan) => {
-    if (plan.isExternal) {
+    // If it's the LinguaFlow plan, check session and navigate accordingly
+    if (plan.isLinguaFlow) {
+      if (session) {
+        navigate("/Dashboard");
+      } else {
+        navigate("/signup");
+      }
+    } 
+    // For other plans, open the calendar link
+    else if (plan.isExternal) {
       window.open(plan.link, "_blank");
-    } else {
-      // Navigate to signup or handle internal link
-      window.location.href = plan.link;
     }
   };
 
@@ -176,7 +175,7 @@ const Pricing = () => {
 
                 {/* CTA Button */}
                 <button
-                  onClick={handleStart}
+                  onClick={() => handleButtonClick(plan)}
                   className={`w-full py-3 rounded-xl font-bold transition-all mb-8 flex items-center justify-center gap-2 ${plan.buttonStyle}`}
                 >
                   {plan.isExternal && <Calendar className="w-5 h-5" />}
