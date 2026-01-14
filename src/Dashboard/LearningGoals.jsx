@@ -27,78 +27,54 @@ const LearningGoals = ({ session, aiMinutes }) => {
       const userId = session.user.id;
 
       try {
-        // Fetch user goals
+        // 1. Fetch user goals
         const { data: goalsData, error: goalsError } = await supabase
           .from("user_goals")
           .select("*")
           .eq("user_id", userId)
           .single();
 
-        if (goalsError && goalsError.code !== 'PGRST116') {
-          console.error("Error fetching goals:", goalsError);
-          setIsLoading(false);
-          return;
-        }
-
-        if (!goalsData) {
-          // No goals found, create default goals
-          const { data: newGoals, error: insertError } = await supabase
-            .from("user_goals")
-            .insert({
-              user_id: userId,
-              daily_word_goal: 10,
-              weekly_revision_goal: 15,
-              ai_chat_time_goal: 60,
-            })
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error("Error creating default goals:", insertError);
-            setIsLoading(false);
-            return;
-          }
-
-          setDailyWords((p) => ({ ...p, goal: newGoals.daily_word_goal }));
-          setWeeklyRevisions((p) => ({
-            ...p,
-            goal: newGoals.weekly_revision_goal,
-          }));
-          setAiChatTime((p) => ({ ...p, goal: newGoals.ai_chat_time_goal }));
-        } else {
-          // Goals found, update state
+        if (goalsData) {
           setDailyWords((p) => ({ ...p, goal: goalsData.daily_word_goal }));
-          setWeeklyRevisions((p) => ({
-            ...p,
-            goal: goalsData.weekly_revision_goal,
-          }));
+          setWeeklyRevisions((p) => ({ ...p, goal: goalsData.weekly_revision_goal }));
           setAiChatTime((p) => ({ ...p, goal: goalsData.ai_chat_time_goal }));
         }
 
-        // Fetch today's words count
-        const today = new Date();
-        const startOfToday = new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate()
-        );
+        // 2. Date Calculations
+        const now = new Date();
+        
+        // Start of Today 
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
 
+        // Start of Current Week 
+        const startOfWeek = new Date(now);
+        const day = now.getDay(); 
+        startOfWeek.setDate(now.getDate() - day);
+        startOfWeek.setHours(0, 0, 0, 0);
+        const startOfWeekISO = startOfWeek.toISOString();
+
+        // 3. Fetch Today's Words Count
         const { data: wordsData, error: wordsError } = await supabase
           .from("words")
           .select("id")
           .eq("user_id", userId)
-          .gte("created_at", startOfToday.toISOString());
+          .gte("created_at", startOfToday);
 
-        if (wordsError) {
-          console.error("Error fetching words:", wordsError);
-        } else {
+        if (!wordsError) {
           setDailyWords((p) => ({ ...p, completed: wordsData?.length || 0 }));
         }
 
-        // Set weekly revisions to 0 (no revisions table yet)
-        setWeeklyRevisions((p) => ({ ...p, completed: 0 }));
+        // 4. Fetch Weekly Revisions Count
+        const { data: revisionsData, error: revisionsError } = await supabase
+          .from("revisions")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("completed", true)
+          .gte("created_at", startOfWeekISO);
 
-        // Update AI chat time
+        if (!revisionsError) {
+          setWeeklyRevisions((p) => ({ ...p, completed: revisionsData?.length || 0 }));
+        }
         setAiChatTime((p) => ({ ...p, completed: aiMinutes }));
 
         setIsLoading(false);
@@ -287,7 +263,7 @@ const LearningGoals = ({ session, aiMinutes }) => {
                 </button>
               </span>
               <span className="text-sm text-purple-400">
-                {weeklyRevisions.completed} / {weeklyRevisions.goal} reviews
+                {weeklyRevisions.completed} / {weeklyRevisions.goal} sessions
               </span>
             </div>
             <div className="w-full bg-[#0B0C10]/50 rounded-full h-3 overflow-hidden border border-white/5">
@@ -311,7 +287,7 @@ const LearningGoals = ({ session, aiMinutes }) => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-white flex items-center gap-2">
-                AI Chat Time
+                Weekly AI Chat Time
                 <button
                   onClick={() => handleOpenEdit("chat", aiChatTime.goal)}
                   className="text-gray-400 hover:text-green-400 transition-colors"
@@ -419,7 +395,7 @@ const LearningGoals = ({ session, aiMinutes }) => {
                       onClick={() => setTempGoalValue(val)}
                       className="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 text-xs font-medium transition-all"
                     >
-                      {val} reviews
+                      {val} sessions
                     </button>
                   ))}
                 {editingGoal === "chat" &&

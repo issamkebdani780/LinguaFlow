@@ -8,18 +8,17 @@ export const AuthContextProvider = ({ children }) => {
 
   // Sign up
   const signUp = async (email, username, password) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        username: username, 
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username: username,
+        },
       },
-    },
-  });
-
-  return { data, error };
-};
+    });
+    return { data, error };
+  };
 
   // Sign in
   const signin = async (email, password) => {
@@ -28,13 +27,26 @@ export const AuthContextProvider = ({ children }) => {
         email,
         password,
       });
-
-      if (error) console.error("Error signing in:", error);
-
       return { data, error };
     } catch (error) {
       console.error("Error signing in:", error);
     }
+  };
+
+  // NEW: Reset Password
+  const resetPassword = async (email) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/update-password`, 
+    });
+    return { data, error };
+  };
+
+  //Update Password 
+  const updatePassword = async (newPassword) => {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    return { data, error };
   };
 
   // Session handling
@@ -59,7 +71,7 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ session, signUp, signin, signOut }}>
+    <AuthContext.Provider value={{ session, signUp, signin, signOut, resetPassword, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );
