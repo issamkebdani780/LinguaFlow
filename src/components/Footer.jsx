@@ -88,10 +88,10 @@ const Footer = ({ openModal }) => {
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Mail className="w-4 h-4 text-sky-400" />
               <a
-                href="mailto:support@linguaflo.me"
+                href="mailto:kebdaniissam780@gmail.com"
                 className="hover:text-sky-400 transition-colors"
               >
-                support@linguaflo.me
+                kebdaniissam780@gmail.com
               </a>
             </div>
           </div>

@@ -90,13 +90,13 @@ const AddWord = ({ onWordAdded }) => {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-300">
               <Sparkles className="w-4 h-4 text-indigo-400" />
-              Translation in your language
+              Translation
             </label>
             <input
               type="text"
               value={arabicTranslation}
               onChange={(e) => setArabicTranslation(e.target.value)}
-              placeholder="أدخل الترجمة العربية..."
+              placeholder="Translation in your language"
               className="w-full bg-[#0B0C10]/60 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg"
               dir="rtl"
               required
