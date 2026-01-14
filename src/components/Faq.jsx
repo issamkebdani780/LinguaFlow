@@ -8,7 +8,7 @@ const FAQ = () => {
   const faqs = [
     {
       question: "How does LinguaFlow work?",
-      answer: "LinguaFlow is a web-based vocabulary learning platform. Create an account, add English words with Arabic translations, practice with our AI chat assistant, and test your knowledge with revision exercises. All your progress is automatically saved and synced across devices."
+      answer: "LinguaFlow is a web-based vocabulary learning platform. Create an account, add English words with it translations, practice with our AI chat assistant, and test your knowledge with revision exercises. All your progress is automatically saved and synced across devices."
     },
     {
       question: "Do I need to download an app?",
@@ -24,7 +24,7 @@ const FAQ = () => {
     },
     {
       question: "What is the revision practice feature?",
-      answer: "You'll get 10 random questions from your vocabulary in different formats: multiple choice (select correct translation), translation (Arabic to English), and writing exercises. After each session, you get a score, accuracy percentage, and detailed statistics."
+      answer: "You'll get 10 random questions from your vocabulary in different formats: multiple choice (select correct translation), translation (your language to English), and writing exercises. After each session, you get a score, accuracy percentage, and detailed statistics."
     },
     {
       question: "Is LinguaFlow really free?",
@@ -32,15 +32,11 @@ const FAQ = () => {
     },
     {
       question: "What languages does LinguaFlow support?",
-      answer: "Currently, LinguaFlow focuses on English vocabulary learning with Arabic translations. This makes it perfect for Arabic speakers learning English or English speakers learning Arabic vocabulary. We're planning to add more language pairs in the future."
+      answer: "Currently, LinguaFlow focuses on English vocabulary learning with translations in your language. This makes it perfect for any one want to learn english. We're planning to add more things pairs in the future."
     },
     {
       question: "How is my progress tracked?",
       answer: "LinguaFlow provides comprehensive statistics including: total words learned, words added this week/month, learning streaks, AI chat time, revision session scores, accuracy percentages, and detailed performance analytics. Set daily goals and track your improvement over time."
-    },
-    {
-      question: "Can I use LinguaFlow offline?",
-      answer: "LinguaFlow requires an internet connection to sync your data and use the AI features. However, once your page is loaded, you can browse your vocabulary list even if your connection is temporarily interrupted. All changes sync automatically when you're back online."
     },
   ];
 

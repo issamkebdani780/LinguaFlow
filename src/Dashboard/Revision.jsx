@@ -11,7 +11,6 @@ import {
   Clock,
   Zap,
   ArrowRight,
-  Volume2,
   Sparkles,
   Trophy,
   RefreshCw,
@@ -158,8 +157,11 @@ const Revision = () => {
     if (selectedAnswer === null && questions[currentQuestion].type === "multiple_choice") return;
 
     const question = questions[currentQuestion];
+    // Trim whitespace and convert to lowercase for text inputs
     const userAnswer =
-      question.type === "multiple_choice" ? selectedAnswer : selectedAnswer?.toLowerCase();
+      question.type === "multiple_choice" 
+        ? selectedAnswer 
+        : selectedAnswer?.trim().toLowerCase();
     const correct = userAnswer === question.correctAnswer.toLowerCase();
 
     setIsCorrect(correct);
@@ -444,8 +446,7 @@ const Revision = () => {
             <h2 className="text-3xl font-bold text-white mb-4">{question.question}</h2>
             {question.type === "translation" && (
               <div className="flex items-center gap-2 text-gray-400">
-                <Volume2 className="w-5 h-5" />
-                <span className="text-sm">Listen and translate</span>
+                <span className="text-sm">translate</span>
               </div>
             )}
           </div>

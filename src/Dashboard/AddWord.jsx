@@ -90,7 +90,7 @@ const AddWord = ({ onWordAdded }) => {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-300">
               <Sparkles className="w-4 h-4 text-indigo-400" />
-              Arabic Translation
+              Translation in your language
             </label>
             <input
               type="text"
