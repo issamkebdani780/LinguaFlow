@@ -57,7 +57,7 @@ const Footer = ({ openModal }) => {
     },
     {
       icon: Calendar,
-      href: "https://calendar.app.google/DXqcUgrdKCb5AuAJ9",
+      href: "https://calendar.app.google/pTDNtRU2LLRULVPK7",
       label: "Schedule Call",
     },
   ];
@@ -88,10 +88,10 @@ const Footer = ({ openModal }) => {
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Mail className="w-4 h-4 text-sky-400" />
               <a
-                href="mailto:contact@linguaflow.ai"
+                href="mailto:support@linguaflo.me"
                 className="hover:text-sky-400 transition-colors"
               >
-                contact@linguaflow.ai
+                support@linguaflo.me
               </a>
             </div>
           </div>
@@ -115,7 +115,7 @@ const Footer = ({ openModal }) => {
             </ul>
           </div>
 
-          {/* Resources Links */}
+          {/* connect Links */}
           <div>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wide">
               Connect
