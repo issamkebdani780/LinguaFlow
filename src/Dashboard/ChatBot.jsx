@@ -92,7 +92,7 @@ const ChatBot = () => {
                         • Test your knowledge with translations
 
                         How would you like to start learning today?`,
-                                    },
+            },
           ]);
         } else {
           setMessages([
@@ -142,20 +142,37 @@ const ChatBot = () => {
         .map((word) => `${word.english}: ${word.arabic}`)
         .join("\n");
 
-      const systemPrompt = `You are an AI English teacher helping a student practice their vocabulary. The student has a vocabulary list with ${words.length} words (English-Arabic translations).
-                            Here is their vocabulary list:
-                            ${vocabularyContext}
-                            Your role:
-                            - Help them practice and memorize these specific words
-                            - Quiz them on meanings and translations
-                            - Create example sentences using their words
-                            - Explain usage, context, and nuances
-                            - Be encouraging and supportive
-                            - Focus ONLY on the words in their list
-                            - Keep responses concise and educational
-                            - Use emojis occasionally to make learning fun
+      const systemPrompt = `You are a multilingual AI language teacher helping a student practice their vocabulary.
 
-                            Always reference the words from their vocabulary list in your responses.`;
+                            CRITICAL RULES:
+                            1. Automatically detect the user's language.
+                            2. ALWAYS respond in the SAME language as the user.
+                            3. NEVER switch languages unless the user explicitly asks.
+                            4. Use ONLY the words provided in the user's vocabulary list.
+                            5. Do NOT introduce new vocabulary outside the list.
+                            6. Keep explanations simple and adapted to the learner's level.
+                            7. Be encouraging, friendly, and educational.
+
+                            CONTEXT:
+                            - Vocabulary count: ${words.length}
+                            - User Vocabulary List (with translations):
+                            ${vocabularyContext}
+
+                            YOUR ROLE:
+                            - Help the student practice and memorize THESE specific words
+                            - Quiz them on meanings, usage, and translations
+                            - Create simple and clear example sentences using ONLY their words
+                            - Explain usage, context, and nuances in a beginner-friendly way
+                            - Correct mistakes gently and clearly
+                            - Keep responses concise and focused
+
+                            IMPORTANT:
+                            - Always reference and rely on the words from the vocabulary list
+                            - If the user asks something that requires a word not in the list,
+                              explain the idea using simpler known words or ask a clarification question.
+
+                            Now respond to the user's last message.
+                            `;
 
       const response = await fetch(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -178,7 +195,7 @@ const ChatBot = () => {
               { role: "user", content: userMessage.content },
             ],
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -289,7 +306,7 @@ const ChatBot = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Info Banner */}
       {words.length === 0 && wordsLoaded && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
@@ -418,7 +435,6 @@ const ChatBot = () => {
           </button>
         </div>
       </form>
-
     </div>
   );
 };
