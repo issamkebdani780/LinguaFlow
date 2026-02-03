@@ -28,6 +28,7 @@ const Revision = () => {
   const [sessionStarted, setSessionStarted] = useState(false);
   const [sessionCompleted, setSessionCompleted] = useState(false);
   const [questions, setQuestions] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [sessionId, setSessionId] = useState(null);
   const [revisionId, setRevisionId] = useState(null);
   const [startTime, setStartTime] = useState(null);
@@ -65,7 +66,7 @@ const Revision = () => {
     const shuffled = [...wordList].sort(() => Math.random() - 0.5);
     const selectedWords = shuffled.slice(0, Math.min(10, wordList.length));
 
-    return selectedWords.map((word, index) => {
+    return selectedWords.map((word) => {
       const questionTypes = ["multiple_choice", "translation", "write"];
       const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
 

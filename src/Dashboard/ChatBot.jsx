@@ -170,10 +170,7 @@ const ChatBot = () => {
                             - Always reference and rely on the words from the vocabulary list
                             - If the user asks something that requires a word not in the list,
                               explain the idea using simpler known words or ask a clarification question.
-
-                            Now respond to the user's last message.
                             `;
-
       const response = await fetch(
         "https://openrouter.ai/api/v1/chat/completions",
         {
